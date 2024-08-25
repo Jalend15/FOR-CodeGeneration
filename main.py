@@ -1,23 +1,23 @@
 import os
 import json
 import inspect
-import tqdm
 
-import arc_types
-import constants
-import dsl
-import tests
-import solvers
+# import arc_types
+# import constants
+# import dsl
+# import tests
+# import solvers
 
 
 
 def get_data(train=True):
-    path = f'../data/{"training" if train else "evaluation"}'
+    path = f'abstraction-and-reasoning-challenge/{"training" if train else "evaluation"}'
     data = {}
     for fn in os.listdir(path):
         with open(f'{path}/{fn}') as f:
             data[fn.rstrip('.json')] = json.load(f)
-    ast = lambda g: tuple(tuple(r) for r in g)
+    def ast(g):
+        return tuple(tuple(r) for r in g)
     return {
         'train': {k: [{
             'input': ast(e['input']),
@@ -117,9 +117,11 @@ def test_solvers_correctness(data, solvers_module):
 
 def main():
     data = get_data(train=True)
-    run_dsl_tests(dsl, tests)
-    test_solvers_formatting(solvers, dsl)
-    test_solvers_correctness(data, solvers)
+    print(type(data['train']))
+    print(data['train']['00d62c1b'][0])
+    # run_dsl_tests(dsl, tests)
+    # test_solvers_formatting(solvers, dsl)
+    # test_solvers_correctness(data, solvers)
 
 
 if __name__ == '__main__':

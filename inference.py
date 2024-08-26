@@ -3,9 +3,11 @@ import inspect
 import os
 
 import numpy as np
-import OpenAI
+
+# import OpenAI
 
 import input_data
+import tmp as llama3
 
 
 def extract_dsl_functions_from_file(file_path):
@@ -61,10 +63,11 @@ class LLM:
         with open(constants_file_path, "r") as constants_file:
             constants_prompt = constants_file.read().strip()
 
-        client = OpenAI()
+        # client = OpenAI()
 
         try:
             prompt = f"""
+            You are an LLM which predicts the correct function name and arguments. Your only output should be function name and arguments.
             Given the current state described as:
             {current_state_description}
 
@@ -72,6 +75,7 @@ class LLM:
             {transformation_goal}
 
             Predict the next DSL function and its arguments.
+            Give only the DSL function and arguments in the format mentioned below and nothing else.
             Provide the output in this format:
             Function name: <function_name>
             Arguments: [<arg1>, <arg2>, ...]
@@ -82,22 +86,34 @@ class LLM:
             Arguments available:
             {constants_prompt}
             """
-            MODEL = "gpt-4o"
-            completion = client.chat.completions.create(
-                model=MODEL,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": prompt,
-                    },
-                    {
-                        "role": "user",
-                        "content": "Choose functions and arguments such that target matrix is reached",
-                    },
-                ],
-            )
+            # MODEL = "gpt-4o"
+            # completion = client.chat.completions.create(
+            #     model=MODEL,
+            #     messages=[
+            #         {
+            #             "role": "system",
+            #             "content": prompt,
+            #         },
+            #         {
+            #             "role": "user",
+            #             "content": "Choose functions and arguments such that target matrix is reached",
+            #         },
+            #     ],
+            # )
+            pipeline = llama3.load_text_generation_pipeline()
 
-            response_text = completion.choices[0].message.content
+            # Generate a response
+            response = llama3.generate_response(
+                pipeline,
+                system_prompt=prompt,
+                user_query="Choose functions and arguments such that target matrix is reached",
+            )
+            response_text = response[-1]["content"]
+            print("Response")
+            print(type(response))
+            print(response[-1]["content"])
+            print("End of response")
+            # response_text = completion.choices[0].message.content
             function_name = (
                 response_text.split("Function name: ")[1].split("\n")[0].strip()
             )
@@ -209,8 +225,21 @@ def state_transition_with_rewards(initial_state, target_state, max_depth=3):
         if not predicted_dsl_fn:
             print("Prediction failed.")
             break
+
         print(f"LLM chose function: {predicted_dsl_fn}")
-        current_state = dsl_functions_dict[predicted_dsl_fn](**dsl_arguments)
+
+        # Call the function dynamically with the provided arguments.
+        try:
+            dsl_function = dsl_functions_dict.get(predicted_dsl_fn)
+            if dsl_function is None:
+                print(f"Function {predicted_dsl_fn} not found in DSL.")
+                break
+
+            # Call the DSL function with arguments (use *args for positional arguments)
+            current_state = dsl_function(*dsl_arguments)
+        except Exception as e:
+            print(f"Error calling function {predicted_dsl_fn}: {e}")
+            break
 
         # Calculate intermediate reward
         reward = calculate_reward(current_state, target_state)

@@ -6,6 +6,8 @@ import tmp as llama3
 import json
 import Utils
 from Task import Task
+import re
+import ast
 
 
 class Candidate:
@@ -73,66 +75,53 @@ class LLM:
         self.history = []  # Track the functions used
         self.rewards = []  # Track intermediate rewards
 
-    def get_llm_prediction(self, current_state_description, transformation_goal):
-        dsl_file_path = "data/prompts/dsl_prompt.txt"
-        constants_file_path = "data/prompts/constant_prompt.txt"
-
-        with open(dsl_file_path, "r") as dsl_file:
-            dsl_prompt = dsl_file.read().strip()
-
-        with open(constants_file_path, "r") as constants_file:
-            constants_prompt = constants_file.read().strip()
-
-        # client = OpenAI()
-
+    def get_llm_prediction(
+        self, current_state_description, transformation_goal, func_list
+    ):
         try:
+            func_list_string = "\n".join([str(func) for func in func_list])
             prompt = f"""
-            You are an LLM which predicts the correct function name and arguments. Your only output should be function name and arguments.
-            Given the current state described as:
+            You are an LLM which predicts the correct function name. Your only output should be function name.
+            Given the current state list is described as:
             {current_state_description}
 
             And the goal to:
             {transformation_goal}
 
-            Predict the next DSL function and its arguments.
-            Give only the DSL function and arguments in the format mentioned below and nothing else.
-            Provide the output in this format:
-            Function name: <function_name>
-            Arguments: [<arg1>, <arg2>, ...]
-
             DSL functions available:
-            {dsl_prompt}
+            {func_list_string}
 
-            Arguments available:
-            {constants_prompt}
+            Predict the next DSL function.
+            Give only the DSL function in the format mentioned below and nothing else.
+            
+            Provide the output in this format:
+            Function name: <function_from_DSL_functions_available>
+            
+            Give the full name including arguments from the provided DSL functions. Give exactly the available functions.
             """
+            # print(prompt)
             pipeline = llama3.load_text_generation_pipeline()
 
             # Generate a response
             response = llama3.generate_response(
                 pipeline,
                 system_prompt=prompt,
-                user_query="Choose functions and arguments such that target matrix is reached",
+                user_query="Choose functions and arguments such that target is reached",
             )
             response_text = response[-1]["content"]
             print("Response")
-            print(response)
+            # print(response)
             print(response[-1]["content"])
             print("End of response")
             # response_text = completion.choices[0].message.content
-            function_name = (
-                response_text.split("Function name: ")[1].split("\n")[0].strip()
-            )
-            arguments_str = response_text.split("Arguments: ")[1].strip()
-            arguments = eval(
-                arguments_str
-            )  # Convert string representation of list to actual list
+            function_name = response[-1]["content"]
+            print("Functions", function_name)
         except Exception as e:
             print(f"Error parsing response: {e}")
             return None, None
 
         self.history.append(function_name)
-        return function_name, arguments
+        return function_name
 
 
 def pad_matrices(matrix1, matrix2):
@@ -168,7 +157,7 @@ def is_target_state(state, target_state):
     return np.array_equal(state, target_state)
 
 
-def state_transition_with_rewards(initial_state, target_state, task, max_depth=3):
+def state_transition_with_rewards(initial_state, target_state, task, max_depth=1):
     current_state = initial_state
     llm = LLM()
 
@@ -179,32 +168,68 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=3
         cand = Candidate(ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2)))
         cand.t = task
         func_list = Utils.getPossibleOperations(task, cand)
-        for x in func_list:
-            print(x)
+        # for x in func_list:
+        #     print(x)
+        function_dict = {}
+        for func in func_list:
+            func_name = func.func.__name__
+            args = func.args
+            kwargs = func.keywords
+
+            # Create a unique key for each function including its arguments
+            key = f"{func_name}(args={args}, kwargs={kwargs})"
+
+            # Store the partial function in the dictionary
+            function_dict[key] = func
+
+        # # Printing the dictionary
+        # for key, partial_func in function_dict.items():
+        #     print(f"Function Identifier: {key}, Partial Function: {partial_func}")
+        # return
         # print(func_list)
-        return
-        predicted_dsl_fn, dsl_arguments = llm.get_llm_prediction(
-            current_state, target_state
+        llm_response = llm.get_llm_prediction(
+            current_state_description=current_state,
+            transformation_goal=target_state,
+            func_list=func_list,
         )
-        if not predicted_dsl_fn:
+        if not llm_response:
             print("Prediction failed.")
             break
 
-        print(f"LLM chose function: {predicted_dsl_fn}")
+        print(f"LLM chose function: {llm_response}")
+        match = re.match(
+            r"Function name: functools\.partial\(<function (\w+) at 0x[\da-f]+>, (.+)\)",
+            llm_response,
+        )
 
-        # Call the function dynamically with the provided arguments.
-        try:
-            dsl_function = dsl_functions_dict.get(predicted_dsl_fn)
-            if dsl_function is None:
-                print(f"Function {predicted_dsl_fn} not found in DSL.")
-                break
+        print(match)
+        # Check if the match was successful
+        if match:
+            func_name = match.group(1)
+            args_string = match.group(2)
+            print(f"Function Name: {func_name}")
+            print(f"Arguments: {args_string}")
+            args_dict = {}
+            for arg in args_string.split(", "):
+                key, value = arg.split("=")
+                # Safely evaluate the argument value (e.g., convert strings to dict, set, etc.)
+                args_dict[key] = ast.literal_eval(value)
 
-            # Call the DSL function with arguments (use *args for positional arguments)
-            current_state = dsl_function(*dsl_arguments)
-        except Exception as e:
-            print(f"Error calling function {predicted_dsl_fn}: {e}")
-            break
+            # Construct the dictionary key as it was created
+            key = f"{func_name}(args=(), kwargs={args_dict})"
 
+            # Retrieve the function from the dictionary
+            partial_func = function_dict.get(key)
+            print(partial_func)
+
+            if partial_func:
+                # Call the function with the current state
+                result = partial_func(task.trainSamples[0].inMatrix)
+                print(f"Function result: {result}")
+            else:
+                print("No matching function found in the dictionary.")
+        else:
+            print("No match found.")
         # Calculate intermediate reward
         reward = calculate_reward(current_state, target_state)
         llm.rewards.append(reward)

@@ -1,25 +1,63 @@
 import importlib.util
 import inspect
 import os
-
 import numpy as np
-
-# import OpenAI
-
-import input_data
 import tmp as llama3
+import json
+import Utils
+from Task import Task
+
+
+class Candidate:
+    """
+    Objects of the class Candidate store the information about a possible
+    candidate for the solution.
+
+    ...
+    Attributes
+    ----------
+    ops: list
+        A list containing the operations to be performed to the input matrix
+        in order to get to the solution. The elements of the list are partial
+        functions (from functools.partial).
+    score: int
+        The score of the candidate. The score is defined as the sum of the
+        number incorrect pixels when applying ops to the input matrices of the
+        train samples of the task.
+    tasks: list
+        A list containing the tasks (in its original format) after performing
+        each of the operations in ops, starting from the original inputs.
+    t: Task.Task
+        The Task.Task object corresponding to the current status of the task.
+        This is, the status after applying all the operations of ops to the
+        input matrices of the task.
+    """
+
+    def __init__(self, ops, tasks, score=1000, predictions=np.zeros((2, 2))):
+        self.ops = ops
+        self.score = score
+        self.tasks = tasks
+        self.t = None
+        self.predictions = predictions
+        self.checked = False
+
+    def __lt__(self, other):
+        """
+        A candidate is better than another one if its score is lower.
+        """
+        if self.score == other.score:
+            return len(self.ops) < len(other.ops)
+        return self.score < other.score
+
+    def generateTask(self):
+        """
+        Assign to the attribute t the Task.Task object corresponding to the
+        current task status.
+        """
+        self.t = Task(self.tasks[-1], "dummyIndex", submission=True)
 
 
 def extract_dsl_functions_from_file(file_path):
-    """
-    Extracts DSL functions from a Python file dynamically.
-
-    Parameters:
-    file_path (str): Path to the Python file containing DSL functions.
-
-    Returns:
-    dict: A dictionary where keys are function names and values are the function objects.
-    """
     module_name = os.path.splitext(os.path.basename(file_path))[0]
     spec = importlib.util.spec_from_file_location(module_name, file_path)
     module = importlib.util.module_from_spec(spec)
@@ -31,29 +69,11 @@ dsl_functions_dict = extract_dsl_functions_from_file("solvers.py")
 
 
 class LLM:
-    """
-    A class representing an LLM model interface that predicts DSL functions and arguments.
-
-    Attributes:
-    history (list): Stores the history of functions used.
-    rewards (list): Stores the intermediate rewards.
-    """
-
     def __init__(self):
         self.history = []  # Track the functions used
         self.rewards = []  # Track intermediate rewards
 
     def get_llm_prediction(self, current_state_description, transformation_goal):
-        """
-        Uses an LLM to predict the next DSL function and its arguments based on the current state and goal.
-
-        Parameters:
-        current_state_description (str): Description of the current state.
-        transformation_goal (str): Description of the target transformation goal.
-
-        Returns:
-        tuple: A tuple containing the predicted DSL function name and a list of arguments.
-        """
         dsl_file_path = "data/prompts/dsl_prompt.txt"
         constants_file_path = "data/prompts/constant_prompt.txt"
 
@@ -86,20 +106,6 @@ class LLM:
             Arguments available:
             {constants_prompt}
             """
-            # MODEL = "gpt-4o"
-            # completion = client.chat.completions.create(
-            #     model=MODEL,
-            #     messages=[
-            #         {
-            #             "role": "system",
-            #             "content": prompt,
-            #         },
-            #         {
-            #             "role": "user",
-            #             "content": "Choose functions and arguments such that target matrix is reached",
-            #         },
-            #     ],
-            # )
             pipeline = llama3.load_text_generation_pipeline()
 
             # Generate a response
@@ -130,16 +136,6 @@ class LLM:
 
 
 def pad_matrices(matrix1, matrix2):
-    """
-    Pads two matrices to the same size if they have different dimensions.
-
-    Parameters:
-    matrix1 (np.ndarray): The first matrix.
-    matrix2 (np.ndarray): The second matrix.
-
-    Returns:
-    tuple: A tuple of padded matrices.
-    """
     max_rows = max(matrix1.shape[0], matrix2.shape[0])
     max_cols = max(matrix1.shape[1], matrix2.shape[1])
 
@@ -158,16 +154,6 @@ def pad_matrices(matrix1, matrix2):
 
 
 def hamming_distance(matrix1, matrix2):
-    """
-    Computes the Hamming distance between two matrices.
-
-    Parameters:
-    matrix1 (np.ndarray): The first matrix.
-    matrix2 (np.ndarray): The second matrix.
-
-    Returns:
-    int: The Hamming distance between the two matrices.
-    """
     if matrix1.shape != matrix2.shape:
         matrix1, matrix2 = pad_matrices(matrix1, matrix2)
 
@@ -175,50 +161,28 @@ def hamming_distance(matrix1, matrix2):
 
 
 def calculate_reward(intermediate_state, target_state):
-    """
-    Calculates the reward as the Hamming distance between the intermediate state and the target state.
-
-    Parameters:
-    intermediate_state (np.ndarray): The current state of the system.
-    target_state (np.ndarray): The target state of the system.
-
-    Returns:
-    int: The computed reward (Hamming distance).
-    """
     return hamming_distance(np.array(intermediate_state), np.array(target_state))
 
 
 def is_target_state(state, target_state):
-    """
-    Checks if the current state matches the target state.
-
-    Parameters:
-    state (np.ndarray): The current state.
-    target_state (np.ndarray): The target state.
-
-    Returns:
-    bool: True if the current state matches the target state, otherwise False.
-    """
     return np.array_equal(state, target_state)
 
 
-def state_transition_with_rewards(initial_state, target_state, max_depth=3):
-    """
-    Simulates state transitions using predicted DSL functions and calculates rewards until the target state is reached or the max depth is exceeded.
-
-    Parameters:
-    initial_state (np.ndarray): The initial state of the system.
-    target_state (np.ndarray): The target state of the system.
-    max_depth (int): The maximum number of transitions allowed.
-
-    Returns:
-    tuple: A tuple containing the history of DSL functions used and the rewards at each step.
-    """
+def state_transition_with_rewards(initial_state, target_state, task, max_depth=3):
     current_state = initial_state
     llm = LLM()
 
     for _ in range(max_depth):
         print(f"Current State: {current_state}")
+        # curr_task = Task(initial_state, 0)
+        # tar_task = Task(target_state, 0)
+        cand = Candidate(ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2)))
+        cand.t = task
+        func_list = Utils.getPossibleOperations(task, cand)
+        for x in func_list:
+            print(x)
+        # print(func_list)
+        return
         predicted_dsl_fn, dsl_arguments = llm.get_llm_prediction(
             current_state, target_state
         )
@@ -256,13 +220,35 @@ def state_transition_with_rewards(initial_state, target_state, max_depth=3):
     return llm.history, llm.rewards
 
 
-# Example Usage
-train_data = input_data.get_data(train=True)
-example_data_input = train_data["train"]["00d62c1b"][0]["input"]
-example_data_output = train_data["train"]["00d62c1b"][0]["output"]
+json_file_path = "1d_denoising_1c_29.json"
 
-history_of_functions, rewards = state_transition_with_rewards(
-    example_data_input, example_data_output
-)
-print(f"History of DSL functions used: {history_of_functions}")
-print(f"Intermediate rewards: {rewards}")
+with open(json_file_path, "r") as file:
+    data = json.load(file)
+
+test_data = data["test"]
+for test_case in test_data:
+    test_input = test_case["input"][0]
+    test_output = test_case["output"][0]
+    print("Test Input:", test_input)
+    print("Test Output:", test_output)
+
+# Extracting train data
+train_data = data["train"]
+
+tmp = Task(data, 0)
+for train_case in train_data:
+    train_input = train_case["input"][0]
+    train_output = train_case["output"][0]
+    print("Train Input:", train_input)
+    print("Train Output:", train_output)
+    state_transition_with_rewards(train_input, train_output, tmp)
+    break
+
+# example_data_input = train_data["train"]["00d62c1b"][0]["input"]
+# example_data_output = train_data["train"]["00d62c1b"][0]["output"]
+
+# history_of_functions, rewards = state_transition_with_rewards(
+#     example_data_input, example_data_output
+# )
+# print(f"History of DSL functions used: {history_of_functions}")
+# print(f"Intermediate rewards: {rewards}")

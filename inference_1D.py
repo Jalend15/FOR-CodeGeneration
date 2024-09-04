@@ -8,7 +8,7 @@ import Utils
 from Task import Task
 import re
 import ast
-
+import functools
 
 class Candidate:
     """
@@ -83,11 +83,15 @@ class LLM:
         2. Object View (Mono-Color):[{'start_index': 3, 'length': 10, 'cell_count': 10, 'shape': ['x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x']},{'start_index': 16, 'length': 1, 'cell_count': 1, 'shape': ['x']},{'start_index': 19, 'length': 1, 'cell_count': 1, 'shape': ['x']},{'start_index': 23, 'length': 1, 'cell_count': 1, 'shape': ['x']}]
         3. Pixel View: {'a': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 19, 23]}
         """
+        with open("data/prompts/example_functions.txt", "r") as f:
+            assert_helpers = f.read()
         try:
             func_list_string = "\n".join([str(func) for func in func_list])
+            print(func_list_string)
             prompt = f"""
             You are an LLM which predicts the correct function name. Your only output should be function name.
             Given the current state list is described using the list and different views:
+            Use helper tests to understand input transformations.
             Input:
             {current_state_description}
             
@@ -102,9 +106,11 @@ class LLM:
             Goal:
             {transformation_goal}
 
-            DSL functions available:
-            Functions:
-            {func_list_string}
+            Helper Functions:
+            {func_list_string} \n
+            
+            Use the assert tests as examples to understand input to output transformations. Input/output pairs may not reflect all possibilities, you are to infer the simplest possible relation.
+            {assert_helpers}
             
             Predict the next DSL function.
             Give only the DSL function in the format mentioned below and nothing else.
@@ -112,7 +118,7 @@ class LLM:
             Provide the output in this format:
             Function name: <function_from_DSL_functions_available>
             
-            Give the full name including arguments from the provided DSL functions. Give exactly the available functions.
+            Give the full name including arguments from the provided DSL functions. Give exactly the available function. Only output function name including arguments from the provided DSL functions. 
             """
             # print(prompt)
             pipeline = llama3.load_text_generation_pipeline()
@@ -183,8 +189,58 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
         cand = Candidate(ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2)))
         cand.t = task
         func_list = Utils.getPossibleOperations(task, cand)
-        # for x in func_list:
-        #     print(x)
+        results = []
+        for func in func_list:
+            try:
+                # Apply the function to the input and store the result
+                result = func(task.trainSamples[0].inMatrix)
+                results.append((func, result))  # Store function reference and its result
+            except Exception as e:
+                print(f"Error running {func}: {e}")
+        # Print the results
+        # for func, output in results:
+        #     print(f"Function: {func}")
+        #     print(f"Input: {task.trainSamples[0].inMatrix.m}\n")
+        #     print(f"Output: {output}\n")
+        # def format_function_call(func, *args, **kwargs):
+        #     """
+        #     Format the function call for writing into the assert statement.
+        #     Extracts the function name, positional arguments, and keyword arguments.
+        #     """
+        #     func_name = func.func.__name__ if hasattr(func, 'func') else func.__name__
+        #     arg_list = ', '.join([repr(arg) for arg in args])  # Positional arguments
+        #     kwarg_list = ', '.join([f"{k}={repr(v)}" for k, v in kwargs.items()])  # Keyword arguments
+
+        #     # Combine positional and keyword arguments
+        #     all_args = ', '.join(filter(None, [arg_list, kwarg_list]))
+        #     return f"{func_name}({all_args})"
+
+        # # Open a file for writing
+        # with open("function_asserts.py", "w") as f:
+        #     # Iterate through all functions in func_list and apply to the train_input
+        #     for func in func_list:
+        #         try:
+        #             # If the function is functools.partial, extract arguments
+        #             if isinstance(func, functools.partial):
+        #                 args = (task.trainSamples[0].inMatrix.m,)
+        #                 kwargs = func.keywords  # Get the keyword arguments passed to partial
+        #             else:
+        #                 args = (task.trainSamples[0].inMatrix.m,)
+        #                 kwargs = {}
+
+        #             # Apply the function to the input
+        #             output = func(task.trainSamples[0].inMatrix)
+
+        #             # Format the function call
+        #             function_call = format_function_call(func, *args, **kwargs)
+
+        #             # Write the assert statement in the required format
+        #             f.write(f"assert {function_call} == {output}\n")
+
+        #         except Exception as e:
+        #             # Write error as comment if the function raises an exception
+        #             f.write(f"# Error running {func}: {e}\n")
+        # return
         function_dict = {}
         for func in func_list:
             func_name = func.func.__name__

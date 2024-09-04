@@ -87,22 +87,24 @@ class LLM:
             func_list_string = "\n".join([str(func) for func in func_list])
             prompt = f"""
             You are an LLM which predicts the correct function name. Your only output should be function name.
-            Given the current state list is described as:
+            Given the current state list is described using the list and different views:
+            Input:
             {current_state_description}
-
-            And the goal to:
-            {transformation_goal}
-
-            DSL functions available:
-            {func_list_string}
-
+            
             The values from 'a' to 'j' represent different colors. '.' is a blank cell.
             For example, [['.','a','.'],['.','.','b']] represents a 2 row x 3 col grid with color a at position (1,0) and color b at position
             (2,1).
             Coordinates are 2D positions (row, col), row representing row number, col representing col number, with zero-indexing.
-            Input/output pairs may not reflect all possibilities, you are to infer the simplest possible relation.
             Different views:
             {views}
+            
+            And the goal to:
+            Goal:
+            {transformation_goal}
+
+            DSL functions available:
+            Functions:
+            {func_list_string}
             
             Predict the next DSL function.
             Give only the DSL function in the format mentioned below and nothing else.

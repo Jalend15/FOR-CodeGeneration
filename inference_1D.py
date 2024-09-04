@@ -78,6 +78,11 @@ class LLM:
     def get_llm_prediction(
         self, current_state_description, transformation_goal, func_list
     ):
+        views = """
+        1. Grid View: ['.', '.', '.', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '.', '.', 'a', '.', '.', 'a', '.', '.', '.', '.', 'a', '.', '.', '.', '.', '.', '.', '.']
+        2. Object View (Mono-Color):[{'start_index': 3, 'length': 10, 'cell_count': 10, 'shape': ['x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x']},{'start_index': 16, 'length': 1, 'cell_count': 1, 'shape': ['x']},{'start_index': 19, 'length': 1, 'cell_count': 1, 'shape': ['x']},{'start_index': 23, 'length': 1, 'cell_count': 1, 'shape': ['x']}]
+        3. Pixel View: {'a': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 19, 23]}
+        """
         try:
             func_list_string = "\n".join([str(func) for func in func_list])
             prompt = f"""
@@ -91,6 +96,14 @@ class LLM:
             DSL functions available:
             {func_list_string}
 
+            The values from 'a' to 'j' represent different colors. '.' is a blank cell.
+            For example, [['.','a','.'],['.','.','b']] represents a 2 row x 3 col grid with color a at position (1,0) and color b at position
+            (2,1).
+            Coordinates are 2D positions (row, col), row representing row number, col representing col number, with zero-indexing.
+            Input/output pairs may not reflect all possibilities, you are to infer the simplest possible relation.
+            Different views:
+            {views}
+            
             Predict the next DSL function.
             Give only the DSL function in the format mentioned below and nothing else.
             

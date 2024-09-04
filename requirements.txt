@@ -1,3 +1,7 @@
 tqdm
 OpenAI
 numpy
+transformers
+torch
+accelerate
+bitsandbytes

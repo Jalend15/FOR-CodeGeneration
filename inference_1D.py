@@ -2,13 +2,14 @@ import importlib.util
 import inspect
 import os
 import numpy as np
-import tmp as llama3
+import quantized_model as llama3
 import json
 import Utils
 from Task import Task
 import re
 import ast
 import functools
+
 
 class Candidate:
     """
@@ -89,36 +90,47 @@ class LLM:
             func_list_string = "\n".join([str(func) for func in func_list])
             print(func_list_string)
             prompt = f"""
-            You are an LLM which predicts the correct function name. Your only output should be function name.
-            Given the current state list is described using the list and different views:
-            Use helper tests to understand input transformations.
-            Input:
+            You are an LLM that predicts the correct DSL_function name given the Input State and the Goal State. Your output should **only** include the DSL_function name.
+            Output only the function name and nothing.
+
+            ### Task Description:
+            - **Input State**: A list described with different views:
             {current_state_description}
-            
-            The values from 'a' to 'j' represent different colors. '.' is a blank cell.
-            For example, [['.','a','.'],['.','.','b']] represents a 2 row x 3 col grid with color a at position (1,0) and color b at position
-            (2,1).
-            Coordinates are 2D positions (row, col), row representing row number, col representing col number, with zero-indexing.
-            Different views:
+
+            - **Color Encoding**: Values from 'a' to 'j' represent colors, and '.' is a blank cell.
+            Example: [['.','a','.'], ['.','.','b']] represents a 2x3 grid with 'a' at (0,1) and 'b' at (1,2).
+
+            - **Views**: 
             {views}
-            
-            And the goal to:
-            Goal:
+
+            - **Goal State**:
             {transformation_goal}
 
-            Helper Functions:
-            {func_list_string} \n
+            ### Available DSL_function:
+            {func_list_string}
+
+            ### Instructions:
+            - Predict the next DSL_function to transform the input into the goal state using the list of Available DSL_function. Just give the fucntion output do not descrive the 
+            - Return only the DSL_function in the format shown below and do not predict anything extra. Follow the format in the in-context examples:
+
+            ### In-Context Examples:
+
+            #### Example 1:
+            - **Input**: [0, 0, 0, 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 0, 0, 'a', 0, 0, 'a', 0, 0, 0, 'a', 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            - **Goal**: ['a', 'a', 'a', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'a', 'a', 0, 'a', 'a', 0, 'a', 'a', 'a', 0, 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a']
+            - **Function name**: functools.partial(<function switchColors at 0x7fa7cadf7420>)
+
+            #### Example 2:
+            - **Input**: array([[0, 0, 0, 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 0, 0, 'a', 0, 0, 'a', 0, 0, 0, 'a', 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+            - **Goal**: [[0 0 0 'a' 'a' 'a' 'a' 'a' 'a' 'a' 'a' 'a' 'a' 'a' 0 0 'a' 0 0 'a' 0 0 0 'a' 0 0 0 0 0 0 0 0 0]]
+            - **Function name**: functools.partial(<function connectAnyPixels at 0x7fa7cadf6fc0>, pixelColor=4, allowedChanges={{3: 0, 'a': 0, 6: 0}}, diagonal=True)
             
-            Use the assert tests as examples to understand input to output transformations. Input/output pairs may not reflect all possibilities, you are to infer the simplest possible relation.
-            {assert_helpers}
-            
-            Predict the next DSL function.
-            Give only the DSL function in the format mentioned below and nothing else.
-            
-            Provide the output in this format:
-            Function name: <function_from_DSL_functions_available>
-            
-            Give the full name including arguments from the provided DSL functions. Give exactly the available function. Only output function name including arguments from the provided DSL functions. 
+            ### Use these as examples to understand input output transformations.
+            #### Example Test Cases:
+            Use the assert tests below to understand input/output transformations. The format is:
+            `assert DSL_function(input, args) == output`
+
+            {assert_helpers[:1000]}
             """
             # print(prompt)
             pipeline = llama3.load_text_generation_pipeline()
@@ -194,7 +206,9 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
             try:
                 # Apply the function to the input and store the result
                 result = func(task.trainSamples[0].inMatrix)
-                results.append((func, result))  # Store function reference and its result
+                results.append(
+                    (func, result)
+                )  # Store function reference and its result
             except Exception as e:
                 print(f"Error running {func}: {e}")
         # Print the results
@@ -213,7 +227,7 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
 
         #     # Combine positional and keyword arguments
         #     all_args = ', '.join(filter(None, [arg_list, kwarg_list]))
-        #     return f"{func_name}({all_args})"
+        #     return f"{func}({all_args})"
 
         # # Open a file for writing
         # with open("function_asserts.py", "w") as f:
@@ -268,8 +282,8 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
             break
 
         print(f"LLM chose function: {llm_response}")
-        match = re.match(
-            r"Function name: functools\.partial\(<function (\w+) at 0x[\da-f]+>, (.+)\)",
+        match = re.search(
+            r"`functools\.partial\(<function (\w+) at 0x[\da-f]+>,\s*(.+)\)",
             llm_response,
         )
 

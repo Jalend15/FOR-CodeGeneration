@@ -1,47 +1,29 @@
-import transformers
-import torch
+import re
 
+# The LLM response string
+llm_response = """
+Based on the input state and goal state, I predict that the next DSL_function to transform the input into the goal state is:
 
-def load_text_generation_pipeline(model_id="unsloth/llama-3-8b-Instruct-bnb-4bit"):
-    # Load the text generation pipeline
-    pipeline = transformers.pipeline(
-        "text-generation",
-        model=model_id,
-        model_kwargs={
-            "torch_dtype": torch.float16,
-            "quantization_config": {"load_in_4bit": True},
-            "device_map": "auto",
-            "low_cpu_mem_usage": True,
-        },
-    )
-    return pipeline
+`functools.partial(<function downsize at 0x7f4764dec040>, newShape=(1, 33))`
 
+This function will downsize the input state to the goal state, reducing the number of cells in the grid while maintaining the same colors. The newShape argument specifies the desired shape of the output, which is (1, 33) in this case.
+"""
 
-def generate_response(pipeline, system_prompt, user_query, max_new_tokens=256):
-    # Use the pipeline to generate a response
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_query},
-    ]
-    outputs = pipeline(
-        messages,
-        max_new_tokens=max_new_tokens,
-    )
-    # Return the generated text
-    return outputs[0]["generated_text"]
+# Remove backticks and newlines from the response to make the regex match more reliably
+cleaned_response = llm_response.replace("`", "").replace("\n", " ")
 
+# Regex to match function name and arguments from the cleaned response
+match = re.search(
+    r"functools\.partial\(<function (\w+) at 0x[\da-f]+>,\s*(.+)\)",
+    cleaned_response,
+)
 
-# Example usage:
-if __name__ == "__main__":
-    # Load the pipeline once
-    pipeline = load_text_generation_pipeline()
+if match:
+    function_name = match.group(1)  # Extract the function name
+    function_args = match.group(2)  # Extract the function arguments
 
-    # Generate a response
-    response = generate_response(
-        pipeline,
-        system_prompt="You are a pirate chatbot who always responds in pirate speak!",
-        user_query="Who are you?",
-    )
-
-    # Print the response
-    print(response)
+    # Print the extracted values
+    print(f"Function Name: {function_name}")
+    print(f"Function Arguments: {function_args}")
+else:
+    print("No match found.")

@@ -227,7 +227,17 @@ def hamming_distance(matrix1, matrix2):
 
 
 def calculate_reward(intermediate_state, target_state):
-    return hamming_distance(np.array(intermediate_state), np.array(target_state))
+    hamming_dist = hamming_distance(
+        np.array(intermediate_state), np.array(target_state)
+    )
+    max_distance = len(intermediate_state[0])  # Total number of elements in the matrix
+    print(f"Max distance {max_distance}")
+    print(f"Hamming distance {hamming_dist}")
+
+    # Calculate normalized reward (1 means perfect match, 0 means completely different)
+    normalized_reward = 1 - (hamming_dist / (max_distance + 0.0000001))
+
+    return normalized_reward
 
 
 def is_target_state(state, target_state):
@@ -238,7 +248,9 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
     current_state = initial_state
     llm = LLM()
 
-    for _ in range(max_depth):
+    for i in range(max_depth):
+        print(max_depth)
+        print(f"Iteration {i}")
         print(f"Current State: {current_state}")
 
         cand = Candidate(ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2)))
@@ -326,7 +338,7 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
             print(f"Success! Reached target state: {target_state}")
             return llm.history, llm.rewards, 1
 
-        print(f"Intermediate Loss: {reward}")
+        print(f"Intermediate Reward: {reward}")
 
     return llm.history, llm.rewards, 0
 
@@ -356,10 +368,12 @@ test_list = [convert_row_to_dict(row) for idx, row in test_data.iterrows()]
 
 # Create final data dictionary
 data = {
-    "test": test_list[:4],
-    "train": train_list[:4],
+    "test": test_list[:2],
+    "train": train_list[:2],
     "uuid": "some_unique_identifier",  # Replace with actual UUID logic if necessary
 }
+
+# print(data)
 
 
 def ensure_correct_format(data):
@@ -399,12 +413,13 @@ def ensure_correct_format(data):
 # Example of using this before passing to Task
 data = ensure_correct_format(data)
 print(data)
+
 accuracy = 0
 for idx, row in train_data.iterrows():
-    print(idx)
-    data = {
-        "test": test_list[idx : idx + 2],
-        "train": test_list[idx : idx + 2],
+    print(f"Example {idx}")
+    data1 = {
+        "test": test_list[idx : idx + 1],
+        "train": test_list[idx : idx + 1],
         "uuid": "some_unique_identifier",  # Replace with actual UUID logic if necessary
     }
     input_data = eval(row["input"])  # Convert string to list/matrix
@@ -418,7 +433,7 @@ for idx, row in train_data.iterrows():
     history_of_functions, rewards, acc = state_transition_with_rewards(
         initial_state=input_data,
         target_state=output_data,
-        task=Task(data, 0),
+        task=Task(data1, 0),
         max_depth=3,  # Adjust depth as needed
     )
     accuracy += acc / 100

@@ -31,17 +31,134 @@ class LLM:
         self.history = []  # Track the functions used
         self.rewards = []  # Track intermediate rewards
 
+    def num_to_char(self, num):
+        mapping = {
+            0: ".",
+            1: "a",
+            2: "b",
+            3: "c",
+            4: "d",
+            5: "e",
+            6: "f",
+            7: "g",
+            8: "h",
+            9: "i",
+        }
+        return mapping.get(num, ".")
+
+    # Function to convert the list of numbers into a grid and generate the views
+    def generate_views(self, numbers, grid_shape):
+        # Reshape the flat list into a 2D grid
+        grid = np.array(numbers).reshape(grid_shape)
+
+        # Grid View: Replace numbers with characters
+        grid_view = (
+            f"1. Grid View: {[self.num_to_char(cell) for row in grid for cell in row]}"
+        )
+
+        # Object View (Mono-Color): Identify contiguous non-zero cells and create objects
+        object_view = "2. Object View (Mono-Color):["
+        objects = []
+
+        visited = np.zeros_like(grid, dtype=bool)  # Keep track of visited cells
+
+        # Function to perform DFS to find contiguous cells
+        def dfs(i, j, grid, visited):
+            stack = [(i, j)]
+            obj_cells = []
+            while stack:
+                ci, cj = stack.pop()
+                if visited[ci, cj] or grid[ci, cj] == 0:
+                    continue
+                visited[ci, cj] = True
+                obj_cells.append((ci, cj))
+                # Explore neighbors (left, right, up, down)
+                for ni, nj in [(ci - 1, cj), (ci + 1, cj), (ci, cj - 1), (ci, cj + 1)]:
+                    if (
+                        0 <= ni < grid.shape[0]
+                        and 0 <= nj < grid.shape[1]
+                        and not visited[ni, nj]
+                    ):
+                        stack.append((ni, nj))
+            return obj_cells
+
+        # Find all objects in the grid
+        for i in range(grid.shape[0]):
+            for j in range(grid.shape[1]):
+                if grid[i, j] != 0 and not visited[i, j]:
+                    obj_cells = dfs(i, j, grid, visited)
+                    if obj_cells:
+                        # Get bounding box of the object
+                        rows = [c[0] for c in obj_cells]
+                        cols = [c[1] for c in obj_cells]
+                        start_row, end_row = min(rows), max(rows)
+                        start_col, end_col = min(cols), max(cols)
+                        # Generate the object's shape
+                        shape = [
+                            [
+                                "x" if (r, c) in obj_cells else "."
+                                for c in range(start_col, end_col + 1)
+                            ]
+                            for r in range(start_row, end_row + 1)
+                        ]
+                        objects.append(
+                            {
+                                "start_index": (start_row, start_col),
+                                "length": len(obj_cells),
+                                "cell_count": len(obj_cells),
+                                "shape": shape,
+                            }
+                        )
+
+        # Convert object information into string format
+        object_view_entries = []
+        for obj in objects:
+            shape_str = ["".join(row) for row in obj["shape"]]
+            obj_str = f"{{'start_index': {obj['start_index']}, 'length': {obj['length']}, 'cell_count': {obj['cell_count']}, 'shape': {shape_str}}}"
+            object_view_entries.append(obj_str)
+        object_view += ",".join(object_view_entries) + "]"
+
+        # Pixel View: Group the coordinates of each pixel value
+        pixel_view = "3. Pixel View: {"
+        pixel_dict = {}
+        for i in range(grid.shape[0]):
+            for j in range(grid.shape[1]):
+                char = self.num_to_char(grid[i, j])
+                if char not in pixel_dict:
+                    pixel_dict[char] = []
+                pixel_dict[char].append((i, j))
+
+        # Convert pixel dictionary to string format
+        pixel_view_entries = []
+        for key, coords in pixel_dict.items():
+            pixel_view_entries.append(f"'{key}': {coords}")
+        pixel_view += ", ".join(pixel_view_entries) + "}"
+
+        # Combine all views into one string
+        views = f"""
+        {grid_view}
+        {object_view}
+        {pixel_view}
+        """
+        return views
+
     def get_llm_prediction(
         self, current_state_description, transformation_goal, func_list
     ):
-        views = """
-        1. Grid View: ['.', '.', '.', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '.', '.', 'a', '.', '.', 'a', '.', '.', '.', '.', 'a', '.', '.', '.', '.', '.', '.', '.']
-        2. Object View (Mono-Color):[{'start_index': 3, 'length': 10, 'cell_count': 10, 'shape': ['x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x']},{'start_index': 16, 'length': 1, 'cell_count': 1, 'shape': ['x']},{'start_index': 19, 'length': 1, 'cell_count': 1, 'shape': ['x']},{'start_index': 23, 'length': 1, 'cell_count': 1, 'shape': ['x']}]
-        3. Pixel View: {'a': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 19, 23]}
-        """
+        # views = """
+        # 1. Grid View: ['.', '.', '.', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '.', '.', 'a', '.', '.', 'a', '.', '.', '.', '.', 'a', '.', '.', '.', '.', '.', '.', '.']
+        # 2. Object View (Mono-Color):[{'start_index': 3, 'length': 10, 'cell_count': 10, 'shape': ['x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x']},{'start_index': 16, 'length': 1, 'cell_count': 1, 'shape': ['x']},{'start_index': 19, 'length': 1, 'cell_count': 1, 'shape': ['x']},{'start_index': 23, 'length': 1, 'cell_count': 1, 'shape': ['x']}]
+        # 3. Pixel View: {'a': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 19, 23]}
+        # """
+        print(current_state_description)
+        print(len(current_state_description[0]))
+        views = self.generate_views(
+            current_state_description, (1, len(current_state_description[0]))
+        )
+        print("Views:", views)
         with open("data/prompts/example_functions.txt", "r") as f:
             assert_helpers = f.read()
-
+        print("Length of function list,", len(func_list))
         try:
             func_list_string = "\n".join([str(func) for func in func_list])
 

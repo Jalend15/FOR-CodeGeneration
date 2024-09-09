@@ -8,6 +8,8 @@ import functools
 import quantized_model as llama3
 from Task import Task
 from Utils import getPossibleOperations
+from Task import Matrix
+import random
 
 
 class Candidate:
@@ -143,7 +145,7 @@ class LLM:
         return views
 
     def get_llm_prediction(
-        self, current_state_description, transformation_goal, func_list
+        self, current_state_description, transformation_goal, func_list, func_dict
     ):
         # views = """
         # 1. Grid View: ['.', '.', '.', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '.', '.', 'a', '.', '.', 'a', '.', '.', '.', '.', 'a', '.', '.', '.', '.', '.', '.', '.']
@@ -256,6 +258,36 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
         cand = Candidate(ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2)))
         cand.t = task
         func_list = getPossibleOperations(task, cand)
+
+        filtered_func_list = []
+        other_func_list = []
+        for func in func_list:
+            try:
+                # Apply the function to the intermediate state
+                result = func(Matrix(current_state))
+                # print(result)
+                # print(target_state)
+                # If the result matches the target state, keep the function
+                if np.array_equal(result, target_state):
+                    filtered_func_list.append(func)
+                    print(f"Function {func} can transform the state successfully.")
+                else:
+                    other_func_list.append(func)
+            except Exception as e:
+                print(f"Error applying function {func}: {e}")
+        print("Length of filtered function list,", len(filtered_func_list))
+
+        # Choose all functions from filtered_func_list and a few from other_func_list
+        func_list = filtered_func_list.copy()
+
+        # Define how many functions you want to randomly pick from other_func_list
+        num_random_from_other = 10  # For example, pick 3 random functions
+
+        # Ensure that we don't pick more than what's available in other_func_list
+        if len(other_func_list) > 0:
+            num_random_from_other = min(num_random_from_other, len(other_func_list))
+            func_list.extend(random.sample(other_func_list, num_random_from_other))
+
         function_dict = {}
         for func in func_list:
             func_name = func.func.__name__
@@ -272,19 +304,24 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
             current_state_description=current_state,
             transformation_goal=target_state,
             func_list=func_list,
+            func_dict=function_dict,
         )
 
         if not llm_response:
             print("Prediction failed.")
             break
-        cleaned_text = re.search(r"functools\.partial\(.*\)", llm_response)
+        cleaned_text = re.search(r"\w+\(.*?\)", llm_response)
+
+        # cleaned_text = re.search(r"functools\.partial\(.*\)", llm_response)
         if cleaned_text:
             cleaned_text = cleaned_text.group(0)  # Extract the `functools.partial` part
             print("Cleaned text", cleaned_text)
         else:
             print("No valid function found in response.")
+            return llm.history, llm.rewards, 0.0
 
         print(f"LLM chose function: {cleaned_text}")
+
         match = re.search(
             r"`functools\.partial\(<function (\w+) at 0x[\da-f]+>,\s*(.+)\)",
             cleaned_text,
@@ -306,7 +343,9 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
             args_dict = {}
 
             # Use a more sophisticated regex to parse key-value pairs safely
-            argument_pattern = re.findall(r"(\w+)=([\w\(\)\, ]+)", args_string)
+            argument_pattern = re.findall(
+                r"(\w+)=({[^}]*}|'[^']*'|None|True|False|[\w]+)", args_string
+            )
 
             for key, value in argument_pattern:
                 try:
@@ -318,14 +357,18 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
 
             # Construct the dictionary key as it was created
             key = f"{func_name}(args=(), kwargs={args_dict})"
+            print("Key from dict", key)
+            print("\n\n\n\n\n\n")
+            for x in function_dict.keys():
+                print(x)
 
             # Retrieve the function from the dictionary
             partial_func = function_dict.get(key)
-            print(partial_func)
+            print("Partial function from dictionary", partial_func)
 
             if partial_func:
                 # Call the function with the current state
-                current_state = partial_func(task.trainSamples[0].inMatrix)
+                current_state = partial_func(Matrix(current_state))
                 print(f"Function result: {current_state}")
             else:
                 print("No matching function found in the dictionary.")
@@ -336,11 +379,11 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
 
         if is_target_state(current_state, target_state):
             print(f"Success! Reached target state: {target_state}")
-            return llm.history, llm.rewards, 1
+            return llm.history, llm.rewards, 1.0
 
         print(f"Intermediate Reward: {reward}")
 
-    return llm.history, llm.rewards, 0
+    return llm.history, llm.rewards, 0.0
 
 
 # Load data from train.csv
@@ -414,7 +457,8 @@ def ensure_correct_format(data):
 data = ensure_correct_format(data)
 print(data)
 
-accuracy = 0
+accuracy = 0.0
+correct_predictions = 0.0
 for idx, row in train_data.iterrows():
     print(f"Example {idx}")
     data1 = {
@@ -434,11 +478,13 @@ for idx, row in train_data.iterrows():
         initial_state=input_data,
         target_state=output_data,
         task=Task(data1, 0),
-        max_depth=3,  # Adjust depth as needed
+        max_depth=1,  # Adjust depth as needed
     )
-    accuracy += acc / 100
+    correct_predictions += acc
+    accuracy = correct_predictions / (float(idx) + 1.0)
 
     # Output the results for this example
     print(f"History of DSL functions used: {history_of_functions}")
     print(f"Intermediate rewards: {rewards}")
+    print(f"Correct predictions: {correct_predictions}")
     print(f"Accuracy: {accuracy}")

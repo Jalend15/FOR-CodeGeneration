@@ -127,6 +127,17 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
         cand = Candidate(ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2)))
         cand.t = task
         func_list = getPossibleOperations(task, cand)
+        function_dict = {}
+        for func in func_list:
+            func_name = func.func.__name__
+            args = func.args
+            kwargs = func.keywords
+
+            # Create a unique key for each function including its arguments
+            key = f"{func_name}(args={args}, kwargs={kwargs})"
+
+            # Store the partial function in the dictionary
+            function_dict[key] = func
 
         llm_response = llm.get_llm_prediction(
             current_state_description=current_state,
@@ -137,9 +148,60 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
         if not llm_response:
             print("Prediction failed.")
             break
+        cleaned_text = re.search(r"functools\.partial\(.*\)", llm_response)
+        if cleaned_text:
+            cleaned_text = cleaned_text.group(0)  # Extract the `functools.partial` part
+            print("Cleaned text", cleaned_text)
+        else:
+            print("No valid function found in response.")
 
-        print(f"LLM chose function: {llm_response}")
+        print(f"LLM chose function: {cleaned_text}")
+        match = re.search(
+            r"`functools\.partial\(<function (\w+) at 0x[\da-f]+>,\s*(.+)\)",
+            cleaned_text,
+        )
+        match = re.search(r"<function (\w+) at .*>,\s*(.*)\)$", cleaned_text)
 
+        print("match1,", match)
+        text = cleaned_text
+        # match = re.search(r"<function (\w+) at .*>,\s*(.*)\)$", text)
+        # print(match)
+        # Check if the match was successful
+        if match:
+            func_name = match.group(1)
+            print(func_name)
+            args_string = match.group(2)
+            print(f"Function Name: {func_name}")
+            print(f"Arguments: {args_string}")
+            # Initialize an empty dictionary to store arguments
+            args_dict = {}
+
+            # Use a more sophisticated regex to parse key-value pairs safely
+            argument_pattern = re.findall(r"(\w+)=([\w\(\)\, ]+)", args_string)
+
+            for key, value in argument_pattern:
+                try:
+                    # Safely evaluate the argument value using ast.literal_eval
+                    args_dict[key] = ast.literal_eval(value)
+                except (SyntaxError, ValueError):
+                    # If it can't be evaluated, keep it as a string (in case of unrecognized formats)
+                    args_dict[key] = value
+
+            # Construct the dictionary key as it was created
+            key = f"{func_name}(args=(), kwargs={args_dict})"
+
+            # Retrieve the function from the dictionary
+            partial_func = function_dict.get(key)
+            print(partial_func)
+
+            if partial_func:
+                # Call the function with the current state
+                current_state = partial_func(task.trainSamples[0].inMatrix)
+                print(f"Function result: {current_state}")
+            else:
+                print("No matching function found in the dictionary.")
+        else:
+            print("No match found.")
         reward = calculate_reward(current_state, target_state)
         llm.rewards.append(reward)
 
@@ -147,7 +209,7 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
             print(f"Success! Reached target state: {target_state}")
             return llm.history, llm.rewards, 1
 
-        print(f"Intermediate Reward: {reward}")
+        print(f"Intermediate Loss: {reward}")
 
     return llm.history, llm.rewards, 0
 
@@ -177,30 +239,42 @@ test_list = [convert_row_to_dict(row) for idx, row in test_data.iterrows()]
 
 # Create final data dictionary
 data = {
-    "test": test_list[:2],
-    "train": train_list[:2],
+    "test": test_list[:4],
+    "train": train_list[:4],
     "uuid": "some_unique_identifier",  # Replace with actual UUID logic if necessary
 }
 
 
 def ensure_correct_format(data):
     for item in data["train"]:
-        print(item)
-        print(np.array(item["input"]).shape)
-        item["input"] = (
-            eval(item["input"]) if isinstance(item["input"], str) else item["input"]
-        )
-        item["output"] = (
-            eval(item["output"]) if isinstance(item["output"], str) else item["output"]
-        )
+        # Check if input is a string, safely parse it using ast.literal_eval, else use it as is
+        if isinstance(item["input"], str):
+            item["input"] = ast.literal_eval(item["input"])
+        if isinstance(item["output"], str):
+            item["output"] = ast.literal_eval(item["output"])
+
+        # Convert inputs and outputs to NumPy arrays and ensure they are float32
+        item["input"] = np.array(item["input"], dtype=np.float32)
+        item["output"] = np.array(item["output"], dtype=np.float32)
+
+        # Print shapes for debugging
+        print(f"Train Input Shape: {item['input'].shape}")
+        print(f"Train Output Shape: {item['output'].shape}")
 
     for item in data["test"]:
-        item["input"] = (
-            eval(item["input"]) if isinstance(item["input"], str) else item["input"]
-        )
-        item["output"] = (
-            eval(item["output"]) if isinstance(item["output"], str) else item["output"]
-        )
+        # Check if input is a string, safely parse it using ast.literal_eval, else use it as is
+        if isinstance(item["input"], str):
+            item["input"] = ast.literal_eval(item["input"])
+        if isinstance(item["output"], str):
+            item["output"] = ast.literal_eval(item["output"])
+
+        # Convert inputs and outputs to NumPy arrays and ensure they are float32
+        item["input"] = np.array(item["input"], dtype=np.float32)
+        item["output"] = np.array(item["output"], dtype=np.float32)
+
+        # Print shapes for debugging
+        print(f"Test Input Shape: {item['input'].shape}")
+        print(f"Test Output Shape: {item['output'].shape}")
 
     return data
 
@@ -210,6 +284,12 @@ data = ensure_correct_format(data)
 print(data)
 accuracy = 0
 for idx, row in train_data.iterrows():
+    print(idx)
+    data = {
+        "test": test_list[idx : idx + 2],
+        "train": test_list[idx : idx + 2],
+        "uuid": "some_unique_identifier",  # Replace with actual UUID logic if necessary
+    }
     input_data = eval(row["input"])  # Convert string to list/matrix
     output_data = eval(row["output"])
 
@@ -229,4 +309,4 @@ for idx, row in train_data.iterrows():
     # Output the results for this example
     print(f"History of DSL functions used: {history_of_functions}")
     print(f"Intermediate rewards: {rewards}")
-    break
+    print(f"Accuracy: {accuracy}")

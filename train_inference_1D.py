@@ -284,7 +284,7 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
         func_list = filtered_func_list.copy()
 
         # Define how many functions you want to randomly pick from other_func_list
-        num_random_from_other = 10  # For example, pick 3 random functions
+        num_random_from_other = 5  # For example, pick 3 random functions
 
         # Ensure that we don't pick more than what's available in other_func_list
         if len(other_func_list) > 0:
@@ -417,8 +417,10 @@ complete_train_data = pd.read_csv(train_csv)
 tasks = ["1d_move_2p", "1d_padded_fill", "1d_denoising_1c"]
 train_data_by_task = complete_train_data[complete_train_data["task"].isin(tasks)]
 
+
+no_of_examples_per_task = 3
 # Extract 10 examples for each task
-train_data = train_data_by_task.groupby("task").head(1)
+train_data = train_data_by_task.groupby("task").head(no_of_examples_per_task)
 # print(train_data)
 
 # # Load data from test.csv
@@ -427,7 +429,9 @@ complete_test_data = pd.read_csv(test_csv)
 test_data_by_task = complete_test_data[complete_test_data["task"].isin(tasks)]
 
 # Extract 10 examples for each task
-test_data = test_data_by_task.groupby("task").head(1)
+test_data = test_data_by_task.groupby("task").head(no_of_examples_per_task)
+train_data = train_data.reset_index(drop=True)
+test_data = test_data.reset_index(drop=True)
 print(test_data)
 
 

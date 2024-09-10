@@ -386,6 +386,8 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
                 print("Closest Match Found:", closest_matches[0])
             else:
                 print("No close match found in the dictionary.")
+                llm.rewards.append(0)
+                return llm.history, llm.rewards, 0.0
             print("Partial function from dictionary", partial_func)
 
             if partial_func:
@@ -422,7 +424,7 @@ tasks = ["1d_move_2p", "1d_padded_fill", "1d_denoising_1c"]
 train_data_by_task = complete_train_data[complete_train_data["task"].isin(tasks)]
 
 
-no_of_examples_per_task = 3
+no_of_examples_per_task = 10
 # Extract 10 examples for each task
 train_data = train_data_by_task.groupby("task").head(no_of_examples_per_task)
 # print(train_data)
@@ -506,7 +508,7 @@ accuracy_by_class = {
 }  # For each task (class)
 overall_correct_predictions = 0.0
 overall_total_predictions = 0.0
-
+max_depth = 1
 for idx, row in train_data.iterrows():
     print(f"Example {idx}")
     data1 = {
@@ -526,7 +528,7 @@ for idx, row in train_data.iterrows():
         initial_state=input_data,
         target_state=output_data,
         task=Task(data1, 0),
-        max_depth=1,  # Adjust depth as needed
+        max_depth=max_depth,  # Adjust depth as needed
     )
     # Update correct predictions and accuracy tracking for the class
     if acc == 1.0:  # Assuming acc returns 1.0 for a correct prediction

@@ -240,7 +240,7 @@ def calculate_reward(intermediate_state, target_state):
     print(f"Hamming distance {hamming_dist}")
 
     # Calculate normalized reward (1 means perfect match, 0 means completely different)
-    normalized_reward = 1 - (hamming_dist / (max_distance + 0.0000001))
+    normalized_reward = 10.0 * (1.0 - (hamming_dist / (max_distance + 0.0000001)))
 
     return normalized_reward
 
@@ -394,8 +394,12 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
                 print(f"Function result: {current_state}")
             else:
                 print("No matching function found in the dictionary.")
+                llm.rewards.append(0)
+                return llm.history, llm.rewards, 0.0
         else:
             print("No match found.")
+            llm.rewards.append(0)
+            return llm.history, llm.rewards, 0.0
         reward = calculate_reward(current_state, target_state)
         llm.rewards.append(reward)
 

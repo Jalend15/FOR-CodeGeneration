@@ -162,7 +162,10 @@ class LLM:
             assert_helpers = f.read()
         print("Length of function list,", len(func_list))
         try:
-            func_list_string = "\n".join([str(func) for func in func_list])
+            func_list_string = "\n\n\n".join(
+                ["<" + str(func) + ">" for func in func_dict.keys()]
+            )
+            print(func_list_string)
 
             prompt = f"""
             You are an LLM that predicts the correct DSL_function name given the Input State and the Goal State. Your output should **only** include the DSL_function name.
@@ -310,60 +313,79 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
         if not llm_response:
             print("Prediction failed.")
             break
-        cleaned_text = re.search(r"\w+\(.*?\)", llm_response)
 
-        # cleaned_text = re.search(r"functools\.partial\(.*\)", llm_response)
-        if cleaned_text:
-            cleaned_text = cleaned_text.group(0)  # Extract the `functools.partial` part
-            print("Cleaned text", cleaned_text)
+        match = re.search(r"<(.*?)>", llm_response)
+
+        if match:
+            extracted_text = match.group(1)
+            print("Extracted text:", extracted_text)
         else:
-            print("No valid function found in response.")
-            return llm.history, llm.rewards, 0.0
+            print("No valid text found inside the angle brackets.")
+        # cleaned_text = re.search(r"\w+\(.*?\)\>", llm_response)
 
-        print(f"LLM chose function: {cleaned_text}")
+        # if cleaned_text:
+        #     cleaned_text = cleaned_text.group(0)  # Extract the entire function call
+        #     print("Cleaned text:", cleaned_text)
+        # else:
+        #     print("No valid function found in response.")
+        #     return llm.history, llm.rewards, 0.0
 
-        match = re.search(
-            r"`functools\.partial\(<function (\w+) at 0x[\da-f]+>,\s*(.+)\)",
-            cleaned_text,
-        )
-        match = re.search(r"<function (\w+) at .*>,\s*(.*)\)$", cleaned_text)
+        # print(f"LLM chose function: {cleaned_text}")
 
-        print("match1,", match)
-        text = cleaned_text
+        # # match = re.search(
+        # #     r"`functools\.partial\(<function (\w+) at 0x[\da-f]+>,\s*(.+)\)",
+        # #     cleaned_text,
+        # # )
+        # match = re.search(r"(\w+)\(args=\(\), kwargs=\{(.*)\}\)", cleaned_text)
+
+        # print("match1,", match)
+        # text = cleaned_text
         # match = re.search(r"<function (\w+) at .*>,\s*(.*)\)$", text)
         # print(match)
         # Check if the match was successful
         if match:
-            func_name = match.group(1)
-            print(func_name)
-            args_string = match.group(2)
-            print(f"Function Name: {func_name}")
-            print(f"Arguments: {args_string}")
-            # Initialize an empty dictionary to store arguments
-            args_dict = {}
+            # func_name = match.group(1)
+            # print(func_name)
+            # args_string = match.group(2)
+            # print(f"Function Name: {func_name}")
+            # print(f"Arguments: {args_string}")
+            # # Initialize an empty dictionary to store arguments
+            # args_dict = {}
 
-            # Use a more sophisticated regex to parse key-value pairs safely
-            argument_pattern = re.findall(
-                r"(\w+)=({[^}]*}|'[^']*'|None|True|False|[\w]+)", args_string
-            )
+            # # Use a more sophisticated regex to parse key-value pairs safely
+            # argument_pattern = re.findall(
+            #     r"(\w+)=({[^}]*}|'[^']*'|None|True|False|[\w]+)", args_string
+            # )
 
-            for key, value in argument_pattern:
-                try:
-                    # Safely evaluate the argument value using ast.literal_eval
-                    args_dict[key] = ast.literal_eval(value)
-                except (SyntaxError, ValueError):
-                    # If it can't be evaluated, keep it as a string (in case of unrecognized formats)
-                    args_dict[key] = value
+            # for key, value in argument_pattern:
+            #     try:
+            #         # Safely evaluate the argument value using ast.literal_eval
+            #         args_dict[key] = ast.literal_eval(value)
+            #     except (SyntaxError, ValueError):
+            #         # If it can't be evaluated, keep it as a string (in case of unrecognized formats)
+            #         args_dict[key] = value
 
-            # Construct the dictionary key as it was created
-            key = f"{func_name}(args=(), kwargs={args_dict})"
+            # # Construct the dictionary key as it was created
+            # key = f"{func_name}(args=(), kwargs={args_dict})"
+            key = match.group(1)
             print("Key from dict", key)
             print("\n\n\n\n\n\n")
             for x in function_dict.keys():
                 print(x)
 
             # Retrieve the function from the dictionary
-            partial_func = function_dict.get(key)
+            from difflib import get_close_matches
+
+            # Find closest matching key
+            closest_matches = get_close_matches(
+                key, function_dict.keys(), n=1, cutoff=0.8
+            )
+
+            if closest_matches:
+                partial_func = function_dict.get(closest_matches[0])
+                print("Closest Match Found:", closest_matches[0])
+            else:
+                print("No close match found in the dictionary.")
             print("Partial function from dictionary", partial_func)
 
             if partial_func:
@@ -388,11 +410,25 @@ def state_transition_with_rewards(initial_state, target_state, task, max_depth=1
 
 # Load data from train.csv
 train_csv = "/home/jalend/FOR-CodeGeneration/data/1D_ARC_train_data.csv"
-train_data = pd.read_csv(train_csv)
+complete_train_data = pd.read_csv(train_csv)
 
-# Load data from train.csv
+
+# Filter rows based on the task names
+tasks = ["1d_move_2p", "1d_padded_fill", "1d_denoising_1c"]
+train_data_by_task = complete_train_data[complete_train_data["task"].isin(tasks)]
+
+# Extract 10 examples for each task
+train_data = train_data_by_task.groupby("task").head(1)
+# print(train_data)
+
+# # Load data from test.csv
 test_csv = "/home/jalend/FOR-CodeGeneration/data/1D_ARC_test_data.csv"
-test_data = pd.read_csv(train_csv)
+complete_test_data = pd.read_csv(test_csv)
+test_data_by_task = complete_test_data[complete_test_data["task"].isin(tasks)]
+
+# Extract 10 examples for each task
+test_data = test_data_by_task.groupby("task").head(1)
+print(test_data)
 
 
 # Helper function to convert CSV row to desired format
@@ -411,12 +447,12 @@ test_list = [convert_row_to_dict(row) for idx, row in test_data.iterrows()]
 
 # Create final data dictionary
 data = {
-    "test": test_list[:2],
-    "train": train_list[:2],
+    "test": test_list,
+    "train": train_list,
     "uuid": "some_unique_identifier",  # Replace with actual UUID logic if necessary
 }
 
-# print(data)
+print(data)
 
 
 def ensure_correct_format(data):
@@ -457,8 +493,12 @@ def ensure_correct_format(data):
 data = ensure_correct_format(data)
 print(data)
 
-accuracy = 0.0
-correct_predictions = 0.0
+accuracy_by_class = {
+    task: {"correct": 0, "total": 0} for task in tasks
+}  # For each task (class)
+overall_correct_predictions = 0.0
+overall_total_predictions = 0.0
+
 for idx, row in train_data.iterrows():
     print(f"Example {idx}")
     data1 = {
@@ -480,11 +520,25 @@ for idx, row in train_data.iterrows():
         task=Task(data1, 0),
         max_depth=1,  # Adjust depth as needed
     )
-    correct_predictions += acc
-    accuracy = correct_predictions / (float(idx) + 1.0)
+    # Update correct predictions and accuracy tracking for the class
+    if acc == 1.0:  # Assuming acc returns 1.0 for a correct prediction
+        accuracy_by_class[row["task"]]["correct"] += 1
+        overall_correct_predictions += 1
 
-    # Output the results for this example
-    print(f"History of DSL functions used: {history_of_functions}")
-    print(f"Intermediate rewards: {rewards}")
-    print(f"Correct predictions: {correct_predictions}")
-    print(f"Accuracy: {accuracy}")
+    accuracy_by_class[row["task"]]["total"] += 1
+    overall_total_predictions += 1
+
+# Calculate overall accuracy
+overall_accuracy = overall_correct_predictions / overall_total_predictions
+# Print accuracy by class and overall accuracy
+print("Accuracy by Class:")
+for task, values in accuracy_by_class.items():
+    task_accuracy = values["correct"] / values["total"] if values["total"] > 0 else 0
+    print(f"{task}: {task_accuracy:.2f}")
+
+print(f"Overall Accuracy: {overall_accuracy:.2f}")
+# Output the results for this example
+print(f"History of DSL functions used: {history_of_functions}")
+print(f"Intermediate rewards: {rewards}")
+# print(f"Correct predictions: {correct_predictions}")
+# print(f"Accuracy: {accuracy}")

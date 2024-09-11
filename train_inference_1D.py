@@ -10,6 +10,7 @@ from Task import Task
 from Utils import getPossibleOperations
 from Task import Matrix
 import random
+import math
 
 
 class Candidate:
@@ -231,18 +232,22 @@ def hamming_distance(matrix1, matrix2):
     return np.sum(matrix1.flatten() != matrix2.flatten())
 
 
-def calculate_reward(intermediate_state, target_state):
+def calculate_reward(prev_state, intermediate_state, target_state):
+    hamming_dist_prev = hamming_distance(
+        np.array(prev_state), np.array(target_state)
+    )
     hamming_dist = hamming_distance(
         np.array(intermediate_state), np.array(target_state)
     )
     max_distance = len(intermediate_state[0])  # Total number of elements in the matrix
     print(f"Max distance {max_distance}")
     print(f"Hamming distance {hamming_dist}")
+    diff = hamming_dist - hamming_dist_prev
+    raw_reward = math.exp(-diff)
 
-    # Calculate normalized reward (1 means perfect match, 0 means completely different)
-    normalized_reward = 10.0 * (1.0 - (hamming_dist / (max_distance + 0.0000001)))
-
-    return normalized_reward
+    # Scale reward from 1 to 10
+    scaled_reward = 1 + 9 * (raw_reward / 1+raw_reward)  # Scaling the value between 1 and 10
+    return scaled_reward
 
 
 def is_target_state(state, target_state):

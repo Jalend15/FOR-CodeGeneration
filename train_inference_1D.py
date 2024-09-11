@@ -419,12 +419,13 @@ train_csv = "/home/jalend/FOR-CodeGeneration/data/1D_ARC_train_data.csv"
 complete_train_data = pd.read_csv(train_csv)
 
 
-# Filter rows based on the task names
 tasks = ["1d_move_2p", "1d_padded_fill", "1d_denoising_1c"]
+# tasks = complete_train_data["task"].unique().tolist()
+# print(complete_train_data["task"].unique().tolist())
 train_data_by_task = complete_train_data[complete_train_data["task"].isin(tasks)]
 
 
-no_of_examples_per_task = 10
+no_of_examples_per_task = 3
 # Extract 10 examples for each task
 train_data = train_data_by_task.groupby("task").head(no_of_examples_per_task)
 # print(train_data)

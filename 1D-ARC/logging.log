@@ -1,0 +1,22 @@
+[2024-09-12 10:24:09,500][main.py][line:114][INFO] start training on GPU 5!
+[2024-09-12 10:24:09,501][main.py][line:115][INFO] Namespace(seed=321, no_cuda=False, pretrained_model='meta-llama/Meta-Llama-3-8B', world_model='meta-llama/Meta-Llama-3-8B', wandb=False, topk=20, fp16=False, step=2, input_file='./data/lexical/commongen_data/test.multi.constraint.json', load_checkpoint_path=None, test_only=False, epochs=20, use_4bit=True, use_lora=True, accumulate_grad_batches=4, buffer_size=50, use_buffer_prob=0.5, n_samples=4, ll_weight=1.5, task='blocksworld', PG=False, batch_size=1, logZ_init=5, reward_temp_start=1.0, reward_temp_end=2.0, epsilon_start=0.3, epsilon_end=0.01, pf_temp_start=4.0, pf_temp_end=1.0, pf_temp_prob=0.5, p_buffer_start=0.25, p_buffer_end=0.5, lr=0.0001, logZ_lr=1e-05, num_iters=10000, mode='train')
+[2024-09-12 10:24:16,675][utils.py][line:145][INFO] Note: detected 255 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+[2024-09-12 10:24:16,675][utils.py][line:148][INFO] Note: NumExpr detected 255 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+[2024-09-12 10:24:16,675][utils.py][line:160][INFO] NumExpr defaulting to 8 threads.
+[2024-09-12 10:24:16,792][config.py][line:58][INFO] PyTorch version 2.4.1 available.
+[2024-09-12 10:24:16,959][rank_zero.py][line:63][INFO] GPU available: True (cuda), used: True
+[2024-09-12 10:24:16,960][rank_zero.py][line:63][INFO] TPU available: False, using: 0 TPU cores
+[2024-09-12 10:24:16,960][rank_zero.py][line:63][INFO] HPU available: False, using: 0 HPUs
+[2024-09-12 10:24:17,603][cuda.py][line:61][INFO] LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [5]
+[2024-09-12 10:24:17,659][model_summary.py][line:104][INFO] 
+  | Name         | Type                 | Params | Mode 
+--------------------------------------------------------------
+0 | model        | PeftModelForCausalLM | 4.6 B  | train
+  | other params | n/a                  | 1      | n/a  
+--------------------------------------------------------------
+56.6 M    Trainable params
+4.5 B     Non-trainable params
+4.6 B     Total params
+18,388.894Total estimated model params size (MB)
+2056      Modules in train mode
+0         Modules in eval mode

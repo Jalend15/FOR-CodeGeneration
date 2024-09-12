@@ -1,8 +1,8 @@
 step=$1
 mkdir -p ./logs/step_${step} && \
 
-CUDA_VISIBLE_DEVICES=6 python main.py \
-    --step $step \
+CUDA_VISIBLE_DEVICES=5 python main.py \
+    --step 1 \
     --n_samples 4 \
     --epochs 20 \
     --ll-weight 1.5 \
@@ -12,4 +12,4 @@ CUDA_VISIBLE_DEVICES=6 python main.py \
     --p_buffer_start 0.25 \
     --epsilon_start 0.3 \
     --world_model "meta-llama/Meta-Llama-3-8B" \
-    --mode "train" > "./logs/step_${step}/output.txt" 2>&1 &
+    --mode "train" > "./logs/step_${step}/output.txt"

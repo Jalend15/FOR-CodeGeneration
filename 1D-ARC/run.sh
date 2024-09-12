@@ -1,4 +1,4 @@
-step=$1
+step=$2
 mkdir -p ./logs/step_${step} && \
 
 CUDA_VISIBLE_DEVICES=6 python main.py \

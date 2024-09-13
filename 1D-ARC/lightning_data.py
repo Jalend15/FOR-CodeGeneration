@@ -48,6 +48,7 @@ class PromptDataModule(LightningDataModule):
     def setup(self, stage):
         all_data = []
         train_data = json.load(open(f"./data/1D-ARC/step_{self.args.step}.json", "r"))
+        print(train_data)
         train_data = train_data
         for d in train_data:
             problem = get_problem(d[0], self.domain_pddl)

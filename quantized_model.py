@@ -9,7 +9,7 @@ def load_text_generation_pipeline(model_id="unsloth/llama-3-8b-Instruct-bnb-4bit
         model=model_id,
         model_kwargs={
             "torch_dtype": torch.float16,
-            "quantization_config": {"load_in_4bit": True},
+            "quantization_config": {"load_in_4bit": False},
             "device_map": "auto",
             "low_cpu_mem_usage": True,
         },

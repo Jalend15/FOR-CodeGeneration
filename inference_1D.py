@@ -346,13 +346,14 @@ for test_case in test_data:
 train_data = data["train"]
 
 tmp = Task(data, 0)
-for train_case in train_data:
-    train_input = train_case["input"][0]
-    train_output = train_case["output"][0]
-    print("Train Input:", train_input)
-    print("Train Output:", train_output)
-    state_transition_with_rewards(train_input, train_output, tmp)
-    break
+print(data)
+# for train_case in train_data:
+#     train_input = train_case["input"][0]
+#     train_output = train_case["output"][0]
+#     print("Train Input:", train_input)
+#     print("Train Output:", train_output)
+#     state_transition_with_rewards(train_input, train_output, tmp)
+#     break
 
 # example_data_input = train_data["train"]["00d62c1b"][0]["input"]
 # example_data_output = train_data["train"]["00d62c1b"][0]["output"]

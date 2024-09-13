@@ -50,6 +50,8 @@ def blocksworld_planning(model, tokenizer, device, args, model_back=None):
         enable_checkpointing=False,
     )
     train_probes = data.train_data
+    print(data)
+    print(train_probes)
     val_probes = data.val_data
     with trainer.init_module():
         task = BlocksWorldGFNTask(

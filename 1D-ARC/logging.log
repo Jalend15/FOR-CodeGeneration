@@ -1,14 +1,14 @@
-[2024-09-13 09:34:30,492][main.py][line:114][INFO] start training on GPU 6!
-[2024-09-13 09:34:30,492][main.py][line:115][INFO] Namespace(seed=321, no_cuda=False, pretrained_model='meta-llama/Meta-Llama-3-8B', world_model='meta-llama/Meta-Llama-3-8B', wandb=False, topk=20, fp16=False, step=2, input_file='./data/lexical/commongen_data/test.multi.constraint.json', load_checkpoint_path=None, test_only=False, epochs=1, use_4bit=True, use_lora=True, accumulate_grad_batches=4, buffer_size=50, use_buffer_prob=0.5, n_samples=4, ll_weight=1.5, task='blocksworld', PG=False, batch_size=1, logZ_init=5, reward_temp_start=1.0, reward_temp_end=2.0, epsilon_start=0.3, epsilon_end=0.01, pf_temp_start=4.0, pf_temp_end=1.0, pf_temp_prob=0.5, p_buffer_start=0.25, p_buffer_end=0.5, lr=0.0001, logZ_lr=1e-05, num_iters=10000, mode='train')
-[2024-09-13 09:34:44,891][utils.py][line:145][INFO] Note: detected 255 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
-[2024-09-13 09:34:44,891][utils.py][line:148][INFO] Note: NumExpr detected 255 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
-[2024-09-13 09:34:44,891][utils.py][line:160][INFO] NumExpr defaulting to 8 threads.
-[2024-09-13 09:34:45,023][config.py][line:58][INFO] PyTorch version 2.4.1 available.
-[2024-09-13 09:34:45,190][rank_zero.py][line:63][INFO] GPU available: True (cuda), used: True
-[2024-09-13 09:34:45,191][rank_zero.py][line:63][INFO] TPU available: False, using: 0 TPU cores
-[2024-09-13 09:34:45,191][rank_zero.py][line:63][INFO] HPU available: False, using: 0 HPUs
-[2024-09-13 09:34:45,942][cuda.py][line:61][INFO] LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [6]
-[2024-09-13 09:34:46,066][model_summary.py][line:104][INFO] 
+[2024-09-13 10:51:34,038][main.py][line:114][INFO] start training on GPU 6!
+[2024-09-13 10:51:34,038][main.py][line:115][INFO] Namespace(seed=321, no_cuda=False, pretrained_model='meta-llama/Meta-Llama-3-8B', world_model='meta-llama/Meta-Llama-3-8B', wandb=False, topk=20, fp16=False, step=2, input_file='./data/lexical/commongen_data/test.multi.constraint.json', load_checkpoint_path=None, test_only=False, epochs=1, use_4bit=True, use_lora=True, accumulate_grad_batches=4, buffer_size=50, use_buffer_prob=0.5, n_samples=4, ll_weight=1.5, task='blocksworld', PG=False, batch_size=1, logZ_init=5, reward_temp_start=1.0, reward_temp_end=2.0, epsilon_start=0.3, epsilon_end=0.01, pf_temp_start=4.0, pf_temp_end=1.0, pf_temp_prob=0.5, p_buffer_start=0.25, p_buffer_end=0.5, lr=0.0001, logZ_lr=1e-05, num_iters=10000, mode='train')
+[2024-09-13 10:51:47,442][utils.py][line:145][INFO] Note: detected 255 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+[2024-09-13 10:51:47,443][utils.py][line:148][INFO] Note: NumExpr detected 255 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+[2024-09-13 10:51:47,443][utils.py][line:160][INFO] NumExpr defaulting to 8 threads.
+[2024-09-13 10:51:47,577][config.py][line:58][INFO] PyTorch version 2.4.1 available.
+[2024-09-13 10:51:47,771][rank_zero.py][line:63][INFO] GPU available: True (cuda), used: True
+[2024-09-13 10:51:47,778][rank_zero.py][line:63][INFO] TPU available: False, using: 0 TPU cores
+[2024-09-13 10:51:47,779][rank_zero.py][line:63][INFO] HPU available: False, using: 0 HPUs
+[2024-09-13 10:51:48,544][cuda.py][line:61][INFO] LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [6]
+[2024-09-13 10:51:48,614][model_summary.py][line:104][INFO] 
   | Name         | Type                 | Params | Mode 
 --------------------------------------------------------------
 0 | model        | PeftModelForCausalLM | 4.6 B  | train

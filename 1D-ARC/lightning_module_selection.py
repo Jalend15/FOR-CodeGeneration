@@ -531,7 +531,6 @@ class BlocksWorldGFNTask(LightningModule):
 
         return data
 
-
     def generate_trajectories(
         self,
         initial_state,
@@ -574,21 +573,50 @@ class BlocksWorldGFNTask(LightningModule):
             #     act for act in allowed_actions if act.lower() not in actions
             # ]
             print(func_list)
-            print(allowed_actions_)
-            import ipdb
+            filtered_func_list = []
+            other_func_list = []
+            for func in func_list:
+                try:
+                    # Apply the function to the intermediate state
+                    result = func(Matrix(eval(initial_state)))
+                    # print(result)
+                    # print(target_state)
+                    # If the result matches the target state, keep the function
+                    if np.array_equal(result, eval(goal)):
+                        filtered_func_list.append(func)
+                        print(f"Function {func} can transform the state successfully.")
+                    else:
+                        other_func_list.append(func)
+                except Exception as e:
+                    print(f"Error applying function {func}: {e}")
+            print("Length of filtered function list,", len(filtered_func_list))
 
-            ipdb.set_trace()
+            # Choose all functions from filtered_func_list and a few from other_func_list
+            allowed_actions_ = filtered_func_list.copy()
+
+            # Define how many functions you want to randomly pick from other_func_list
+            num_random_from_other = 5  # For example, pick 3 random functions
+
+            # Ensure that we don't pick more than what's available in other_func_list
+            if len(other_func_list) > 0:
+                num_random_from_other = min(num_random_from_other, len(other_func_list))
+                allowed_actions_.extend(
+                    random.sample(other_func_list, num_random_from_other)
+                )
+            allowed_actions = allowed_actions_
+
+            print(allowed_actions_)
 
             if len(allowed_actions_) != 0:
 
                 # epsilon greedy
                 if np.random.rand() < self.epsilon and mode == "train":
                     action = random.choice(allowed_actions_)
-                    action = action.lower()
+                    # action = action.lower()
                 else:
                     inputs = (
-                        icl_template.replace("<init_state>", current_state.lstrip())
-                        .replace("<goals>", goal)
+                        icl_template.replace("<init_state>", str(current_state))
+                        .replace("<goals>", str(goal))
                         .replace("<action>", previous_action.lstrip())
                         .replace("<step>", str(step).strip())
                         .strip()
@@ -602,7 +630,7 @@ class BlocksWorldGFNTask(LightningModule):
 
                     action_logits = []
                     for ac in allowed_actions_:
-                        a = ac.lower()
+                        a = str(ac)
                         action_ids = self.tokenizer.encode(
                             a, add_special_tokens=False, return_tensors="pt"
                         ).to(self.device)
@@ -624,9 +652,19 @@ class BlocksWorldGFNTask(LightningModule):
                                 )
                         action_logits.append(total_log_prob)
                         # sample from tempered policy
+                    print("Action logits",action_logits)
+                    print("pf_temp",pf_temp)
                     action_logits = torch.stack(action_logits) / pf_temp
 
                     action_logits = action_logits.to(torch.float32)
+                    max_logits = torch.max(action_logits)  # Find the maximum value
+                    normalized_logits = action_logits - max_logits  # Subtract the max from all logits
+                    action_logits = normalized_logits
+                    print(action_logits)
+                    print(torch.exp(action_logits))
+                    print(torch.sum(
+                        torch.exp(action_logits)
+                    ))
 
                     probabilities = torch.exp(action_logits) / torch.sum(
                         torch.exp(action_logits)
@@ -636,56 +674,59 @@ class BlocksWorldGFNTask(LightningModule):
 
                     idx = dist.sample()
 
-                    action = allowed_actions_[idx].lower()
+                    action = allowed_actions_[idx]
 
             else:
                 action = random.choice(allowed_actions)
-            if "I have that, " not in last_state:
-                last_state_ = "I have that, " + last_state
-                states.append(last_state_.split("I have that, ")[1].strip())
-            else:
-                states.append(last_state.split("I have that, ")[1].strip())
-
+            # if "I have that, " not in last_state:
+            #     last_state_ = "I have that, " + last_state
+            #     states.append(last_state_.split("I have that, ")[1].strip())
+            # else:
+            #     states.append(last_state.split("I have that, ")[1].strip())
+            states.append(last_state)
             actions.append(action)
 
             last_action = action
+            print(f"Action: {action}")
             # change these actions
-            if "Pick" in last_action or "Pick".lower() in last_action:
-                world_update_prompt = self.prompts["world_update_pickup"].format(
-                    last_state, last_action.capitalize()
-                )
-            elif "Unstack" in last_action or "Unstack".lower() in last_action:
-                world_update_prompt = self.prompts["world_update_unstack"].format(
-                    last_state, last_action.capitalize()
-                )
-            elif "Put" in last_action or "Put".lower() in last_action:
-                world_update_prompt = self.prompts["world_update_putdown"].format(
-                    last_state, last_action.capitalize()
-                )
-            elif "Stack" in last_action or "Stack".lower() in last_action:
-                world_update_prompt = self.prompts["world_update_stack"].format(
-                    last_state, last_action.capitalize()
-                )
+            # if "Pick" in last_action or "Pick".lower() in last_action:
+            #     world_update_prompt = self.prompts["world_update_pickup"].format(
+            #         last_state, last_action.capitalize()
+            #     )
+            # elif "Unstack" in last_action or "Unstack".lower() in last_action:
+            #     world_update_prompt = self.prompts["world_update_unstack"].format(
+            #         last_state, last_action.capitalize()
+            #     )
+            # elif "Put" in last_action or "Put".lower() in last_action:
+            #     world_update_prompt = self.prompts["world_update_putdown"].format(
+            #         last_state, last_action.capitalize()
+            #     )
+            # elif "Stack" in last_action or "Stack".lower() in last_action:
+            #     world_update_prompt = self.prompts["world_update_stack"].format(
+            #         last_state, last_action.capitalize()
+            #     )
 
-            if (last_state, last_action) in self.transitions:
-                # if s, a, s' have been observed
-                new_state = self.transitions[(last_state, last_action)]
-            else:
-                # if s, a, s' have not been observed, use World Model to predict the state and store it.
-                lora_to_base(self.model)
+            # if (last_state, last_action) in self.transitions:
+            #     # if s, a, s' have been observed
+            #     new_state = self.transitions[(last_state, last_action)]
+            # else:
+            #     # if s, a, s' have not been observed, use World Model to predict the state and store it.
+            #     lora_to_base(self.model)
 
-                world_output = self.query_LM(
-                    self.model,
-                    self.world_tokenizer,
-                    world_update_prompt,
-                    do_sample=False,
-                    num_return_sequences=1,
-                    eos_token_id=eos_token_id,
-                )[0]
-                world_change = world_output.split("[CHANGE]")[-1]
-                new_state = apply_change(world_change, last_state)
-                self.transitions[(last_state, last_action)] = new_state
+            #     world_output = self.query_LM(
+            #         self.model,
+            #         self.world_tokenizer,
+            #         world_update_prompt,
+            #         do_sample=False,
+            #         num_return_sequences=1,
+            #         eos_token_id=eos_token_id,
+            #     )[0]
+            #     world_change = world_output.split("[CHANGE]")[-1]
+            #     new_state = apply_change(world_change, last_state)
+            #     self.transitions[(last_state, last_action)] = new_state
+            new_state = action(Matrix(eval(initial_state)))
             last_state = new_state
+            print(new_state)
         if "I have that, " not in last_state:
             last_state_ = "I have that, " + last_state
             states.append(last_state_.split("I have that, ")[1].strip())
@@ -695,11 +736,11 @@ class BlocksWorldGFNTask(LightningModule):
             "the [a-z]{0,10} block is on top of the [a-z]{0,10} block", goal
         )
         # terminal rewards
-        meetings = [g in new_state for g in goals]
-        if sum(meetings) == len(meetings):
+        # meetings = [g in new_state for g in goals]
+        if new_state == goal:
             r1 = 100
         else:
-            r1 = 10 * sum(meetings) / len(meetings)
+            r1 = 0
 
         r1 = torch.tensor(r1).to(self.device)
 
@@ -736,13 +777,13 @@ class BlocksWorldGFNTask(LightningModule):
             else:
                 allowed_actions = generate_all_actions(last_state)
                 allowed_actions_ = [
-                    act for act in allowed_actions if act.lower() not in actions
+                    act for act in allowed_actions
                 ]
                 if len(allowed_actions_) != 0:
                     action = random.choice(allowed_actions_)
                 else:
                     action = random.choice(allowed_actions)
-                action = action.lower()
+                action = action
 
             if "I have that, " not in last_state:
                 last_state_ = "I have that, " + last_state
@@ -841,7 +882,7 @@ class BlocksWorldGFNTask(LightningModule):
             action = actions[step]
 
             bsz = len(allowed_actions)
-            action_texts = [ac.lower() for ac in allowed_actions]
+            action_texts = [ac for ac in allowed_actions]
             action_ids = [
                 self.tokenizer.encode(
                     a, add_special_tokens=False, return_tensors="pt"

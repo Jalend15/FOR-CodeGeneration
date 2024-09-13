@@ -6,7 +6,7 @@ from pytorch_lightning import LightningModule
 from transformers.trainer_pt_utils import LabelSmoother
 from util import lora_to_base, base_to_lora
 
-from bw_utils import *
+# from bw_utils import *
 import yaml
 import json
 import bitsandbytes as bnb
@@ -27,7 +27,7 @@ from Utils import getPossibleOperations
 from Task import Matrix
 import math
 
-sys.path.append("gpt-plan-benchmark/gpt_plan_test")
+# sys.path.append("gpt-plan-benchmark/gpt_plan_test")
 
 
 class Candidate:
@@ -141,7 +141,7 @@ class BlocksWorldGFNTask(LightningModule):
 
         (generated_text, actions, states, reward, sample) = self.generate_trajectories(
             initial_state=INIT,
-            goal=GOAL,
+            goal=f"have that {GOAL}.",
             max_steps=self.args.step,
             eos_token_id=self.tokenizer.encode("\n", add_special_tokens=False)[0],
             pf_temp=pf_temp,
@@ -500,38 +500,6 @@ class BlocksWorldGFNTask(LightningModule):
                 ]
             )
 
-    def ensure_correct_format(self, data):
-        for item in data["train"]:
-            if isinstance(item["input"], str):
-                item["input"] = ast.literal_eval(item["input"])
-            if isinstance(item["output"], str):
-                item["output"] = ast.literal_eval(item["output"])
-
-            item["input"] = np.array(item["input"], dtype=np.float32)
-            item["output"] = np.array(item["output"], dtype=np.float32)
-
-            print(f"Train Input Type: {item['input'].dtype}")  # Check data type
-            print(f"Train Output Type: {item['output'].dtype}")
-            print(f"Train Input Shape: {item['input'].shape}")
-            print(f"Train Output Shape: {item['output'].shape}")
-
-        for item in data["test"]:
-            if isinstance(item["input"], str):
-                item["input"] = ast.literal_eval(item["input"])
-            if isinstance(item["output"], str):
-                item["output"] = ast.literal_eval(item["output"])
-
-            item["input"] = np.array(item["input"], dtype=np.float32)
-            item["output"] = np.array(item["output"], dtype=np.float32)
-
-            print(f"Test Input Type: {item['input'].dtype}")  # Check data type
-            print(f"Test Output Type: {item['output'].dtype}")
-            print(f"Test Input Shape: {item['input'].shape}")
-            print(f"Test Output Shape: {item['output'].shape}")
-
-        return data
-
-
     def generate_trajectories(
         self,
         initial_state,
@@ -558,26 +526,13 @@ class BlocksWorldGFNTask(LightningModule):
             previous_action = ""
             current_state = last_state
             # change function generate_all_actions
-            data1 = {
-                "test": [{"input": initial_state, "output": goal}],
-                "train": [{"input": initial_state, "output": goal}],
-                "uuid": "some_unique_identifier",  # Replace with actual UUID logic if necessary
-            }
-            data1 = self.ensure_correct_format(data1)
-            print(data1)
-            task = Task(data1, 0)
             cand = Candidate(ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2)))
             cand.t = task
-            # allowed_actions = generate_all_actions(last_state)
+            allowed_actions = generate_all_actions(last_state)
             func_list = getPossibleOperations(task, cand)
-            # allowed_actions_ = [
-            #     act for act in allowed_actions if act.lower() not in actions
-            # ]
-            print(func_list)
-            print(allowed_actions_)
-            import ipdb
-
-            ipdb.set_trace()
+            allowed_actions_ = [
+                act for act in allowed_actions if act.lower() not in actions
+            ]
 
             if len(allowed_actions_) != 0:
 

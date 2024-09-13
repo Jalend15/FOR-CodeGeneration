@@ -233,9 +233,7 @@ def hamming_distance(matrix1, matrix2):
 
 
 def calculate_reward(prev_state, intermediate_state, target_state):
-    hamming_dist_prev = hamming_distance(
-        np.array(prev_state), np.array(target_state)
-    )
+    hamming_dist_prev = hamming_distance(np.array(prev_state), np.array(target_state))
     hamming_dist = hamming_distance(
         np.array(intermediate_state), np.array(target_state)
     )
@@ -246,7 +244,9 @@ def calculate_reward(prev_state, intermediate_state, target_state):
     raw_reward = math.exp(-diff)
 
     # Scale reward from 1 to 10
-    scaled_reward = 1 + 9 * (raw_reward / 1+raw_reward)  # Scaling the value between 1 and 10
+    scaled_reward = 1 + 9 * (
+        raw_reward / 1 + raw_reward
+    )  # Scaling the value between 1 and 10
     return scaled_reward
 
 

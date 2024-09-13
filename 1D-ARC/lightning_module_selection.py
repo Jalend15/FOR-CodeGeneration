@@ -152,8 +152,8 @@ class BlocksWorldGFNTask(LightningModule):
         INIT, GOAL, PLAN = problem
         GOAL = GOAL[0]
         INIT = INIT[0]
-        initial_state = f"I have that, {INIT}."
-        goal = f"My goal is to have that {GOAL}."
+        initial_state = f"{INIT}"
+        goal = f"{GOAL}"
         actions = PLAN
         ########################## Compute the reward for ground-truth trajectory ##########################
 
@@ -174,7 +174,7 @@ class BlocksWorldGFNTask(LightningModule):
             for state, sample in zip(state_list, sample_list):
                 (actions, states) = eval(state)
                 log_pf, log_bf = self.forward_prob(
-                    f"have that {GOAL}.", actions, states
+                    f"{GOAL}", actions, states
                 )
                 LOG_PF.append(log_pf)
                 LOG_BF.append(log_bf)
@@ -199,7 +199,7 @@ class BlocksWorldGFNTask(LightningModule):
                     ll_weight = 1
                 else:
                     ll_reward = self.get_ll_reward(
-                        actions, states, f"have that {GOAL}."
+                        actions, states, f"{GOAL}"
                     )
                     ll_reward = -1 / ll_reward
                     ll_weight = self.args.ll_weight
@@ -214,12 +214,12 @@ class BlocksWorldGFNTask(LightningModule):
                     torch.log(reward + ll_weight * ll_reward.sum()),
                 )
                 log_pf, log_bf = self.forward_prob(
-                    f"have that {GOAL}.", actions, states
+                    f"{GOAL}", actions, states
                 )
                 LOG_PF.append(log_pf)
                 LOG_BF.append(log_bf)
 
-                actions_joined = "\n".join(actions)
+                actions_joined = "\n".join(str(actions))
                 self.traj[actions_joined] += 1
 
                 if torch.log(reward + ll_weight * ll_reward.sum()) > best_reward:
@@ -230,8 +230,8 @@ class BlocksWorldGFNTask(LightningModule):
                 # conduct local search
             for _ in range(16):
                 _, actions, states, reward, _ = self.local_search(
-                    initial_state=f"I have that, {INIT}.",
-                    goal=f"My goal is to have that {GOAL}.",
+                    initial_state=f"{INIT}",
+                    goal=f"{GOAL}",
                     max_steps=self.args.step,
                     plan=best_actions,
                     states=best_states,
@@ -247,7 +247,7 @@ class BlocksWorldGFNTask(LightningModule):
                     ll_weight = 1
                 else:
                     ll_reward = self.get_ll_reward(
-                        actions, states, f"have that {GOAL}."
+                        actions, states, f"{GOAL}"
                     )
                     ll_reward = -1 / ll_reward
                     ll_weight = self.args.ll_weight
@@ -266,7 +266,7 @@ class BlocksWorldGFNTask(LightningModule):
                         torch.log(reward + ll_weight * ll_reward.sum()),
                     )
                     log_pf, log_bf = self.forward_prob(
-                        f"have that {GOAL}.", actions, states
+                        f"{GOAL}", actions, states
                     )
                     LOG_PF.append(log_pf)
                     LOG_BF.append(log_bf)
@@ -328,7 +328,7 @@ class BlocksWorldGFNTask(LightningModule):
             (generated_text, actions, states, reward, sample) = (
                 self.generate_trajectories(
                     initial_state=INIT,
-                    goal=f"have that {GOAL}.",
+                    goal=f"{GOAL}",
                     max_steps=self.args.step,
                     eos_token_id=self.tokenizer.encode("\n", add_special_tokens=False)[
                         0
@@ -337,7 +337,7 @@ class BlocksWorldGFNTask(LightningModule):
                 )
             )
 
-            goal_statement = f"My goal is to have that {GOAL}."
+            goal_statement = f"{GOAL}"
             goals = re.findall(
                 "the [a-z]{0,10} block is on top of the [a-z]{0,10} block",
                 goal_statement,
@@ -389,7 +389,7 @@ class BlocksWorldGFNTask(LightningModule):
             (generated_text, actions, states, reward, sample) = (
                 self.generate_trajectories(
                     initial_state=INIT,
-                    goal=f"have that {GOAL}.",
+                    goal=f"{GOAL}",
                     max_steps=self.args.step,
                     eos_token_id=self.tokenizer.encode("\n", add_special_tokens=False)[
                         0
@@ -398,7 +398,7 @@ class BlocksWorldGFNTask(LightningModule):
                 )
             )
 
-            goal_statement = f"My goal is to have that {GOAL}."
+            goal_statement = f"{GOAL}"
             goals = re.findall(
                 "the [a-z]{0,10} block is on top of the [a-z]{0,10} block",
                 goal_statement,
@@ -584,7 +584,7 @@ class BlocksWorldGFNTask(LightningModule):
                     # If the result matches the target state, keep the function
                     if np.array_equal(result, eval(goal)):
                         filtered_func_list.append(func)
-                        print(f"Function {func} can transform the state successfully.")
+                        print(f"Function {func} can transform the state successfully")
                     else:
                         other_func_list.append(func)
                 except Exception as e:
@@ -727,17 +727,20 @@ class BlocksWorldGFNTask(LightningModule):
             new_state = action(Matrix(eval(initial_state)))
             last_state = new_state
             print(new_state)
-        if "I have that, " not in last_state:
-            last_state_ = "I have that, " + last_state
-            states.append(last_state_.split("I have that, ")[1].strip())
-        else:
-            states.append(last_state.split("I have that, ")[1].strip())
+        states.append(last_state)
+        # if "I have that, " not in last_state:
+        #     last_state_ = "I have that, " + last_state
+        #     states.append(last_state_.split("I have that, ")[1].strip())
+        # else:
+        #     states.append(last_state.split("I have that, ")[1].strip())
         goals = re.findall(
             "the [a-z]{0,10} block is on top of the [a-z]{0,10} block", goal
         )
         # terminal rewards
         # meetings = [g in new_state for g in goals]
-        if new_state == goal:
+        print(new_state)
+        print(goal)
+        if str(new_state) == str(goal):
             r1 = 100
         else:
             r1 = 0
@@ -775,75 +778,121 @@ class BlocksWorldGFNTask(LightningModule):
             if step < K:
                 action = plan[step]
             else:
-                allowed_actions = generate_all_actions(last_state)
-                allowed_actions_ = [
-                    act for act in allowed_actions
-                ]
+            # change function generate_all_actions
+                data1 = {
+                    "test": [{"input": initial_state, "output": goal}],
+                    "train": [{"input": initial_state, "output": goal}],
+                    "uuid": "some_unique_identifier",  # Replace with actual UUID logic if necessary
+                }
+                data1 = self.ensure_correct_format(data1)
+                print(data1)
+                task = Task(data1, 0)
+                cand = Candidate(ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2)))
+                cand.t = task
+                # allowed_actions = generate_all_actions(last_state)
+                func_list = getPossibleOperations(task, cand)
+                # allowed_actions_ = [
+                #     act for act in allowed_actions if act.lower() not in actions
+                # ]
+                print(func_list)
+                filtered_func_list = []
+                other_func_list = []
+                for func in func_list:
+                    try:
+                        # Apply the function to the intermediate state
+                        result = func(Matrix(eval(initial_state)))
+                        # print(result)
+                        # print(target_state)
+                        # If the result matches the target state, keep the function
+                        if np.array_equal(result, eval(goal)):
+                            filtered_func_list.append(func)
+                            print(f"Function {func} can transform the state successfully")
+                        else:
+                            other_func_list.append(func)
+                    except Exception as e:
+                        print(f"Error applying function {func}: {e}")
+                print("Length of filtered function list,", len(filtered_func_list))
+
+                # Choose all functions from filtered_func_list and a few from other_func_list
+                allowed_actions_ = filtered_func_list.copy()
+                allowed_actions = allowed_actions_
+                # Define how many functions you want to randomly pick from other_func_list
+                num_random_from_other = 5  # For example, pick 3 random functions
+
+                # Ensure that we don't pick more than what's available in other_func_list
+                if len(other_func_list) > 0:
+                    num_random_from_other = min(num_random_from_other, len(other_func_list))
+                    allowed_actions_.extend(
+                        random.sample(other_func_list, num_random_from_other)
+                    )
+                allowed_actions = allowed_actions_
+
                 if len(allowed_actions_) != 0:
                     action = random.choice(allowed_actions_)
                 else:
                     action = random.choice(allowed_actions)
                 action = action
-
-            if "I have that, " not in last_state:
-                last_state_ = "I have that, " + last_state
-                states.append(last_state_.split("I have that, ")[1].strip())
-            else:
-                states.append(last_state.split("I have that, ")[1].strip())
+            states.append(last_state)
+            # if "I have that, " not in last_state:
+            #     last_state_ = "I have that, " + last_state
+            #     states.append(last_state_.split("I have that, ")[1].strip())
+            # else:
+            #     states.append(last_state.split("I have that, ")[1].strip())
 
             actions.append(action)
 
             last_action = action
 
-            if "Pick" in last_action or "Pick".lower() in last_action:
-                world_update_prompt = self.prompts["world_update_pickup"].format(
-                    last_state, last_action.capitalize()
-                )
-            elif "Unstack" in last_action or "Unstack".lower() in last_action:
-                world_update_prompt = self.prompts["world_update_unstack"].format(
-                    last_state, last_action.capitalize()
-                )
-            elif "Put" in last_action or "Put".lower() in last_action:
-                world_update_prompt = self.prompts["world_update_putdown"].format(
-                    last_state, last_action.capitalize()
-                )
-            elif "Stack" in last_action or "Stack".lower() in last_action:
-                world_update_prompt = self.prompts["world_update_stack"].format(
-                    last_state, last_action.capitalize()
-                )
+            # if "Pick" in last_action or "Pick".lower() in last_action:
+            #     world_update_prompt = self.prompts["world_update_pickup"].format(
+            #         last_state, last_action.capitalize()
+            #     )
+            # elif "Unstack" in last_action or "Unstack".lower() in last_action:
+            #     world_update_prompt = self.prompts["world_update_unstack"].format(
+            #         last_state, last_action.capitalize()
+            #     )
+            # elif "Put" in last_action or "Put".lower() in last_action:
+            #     world_update_prompt = self.prompts["world_update_putdown"].format(
+            #         last_state, last_action.capitalize()
+            #     )
+            # elif "Stack" in last_action or "Stack".lower() in last_action:
+            #     world_update_prompt = self.prompts["world_update_stack"].format(
+            #         last_state, last_action.capitalize()
+            #     )
 
-            if (last_state, last_action) in self.transitions:
-                # if s, a, s' have been observed
-                new_state = self.transitions[(last_state, last_action)]
-            else:
-                # if s, a, s' have not been observed, use World Model to predict the state and store it.
-                lora_to_base(self.model)
-                world_output = self.query_LM(
-                    self.model,
-                    self.world_tokenizer,
-                    world_update_prompt,
-                    do_sample=False,
-                    num_return_sequences=1,
-                    eos_token_id=eos_token_id,
-                )[0]
-                world_change = world_output.split("[CHANGE]")[-1]
+            # if (last_state, last_action) in self.transitions:
+            #     # if s, a, s' have been observed
+            #     new_state = self.transitions[(last_state, last_action)]
+            # else:
+            #     # if s, a, s' have not been observed, use World Model to predict the state and store it.
+            #     lora_to_base(self.model)
+            #     world_output = self.query_LM(
+            #         self.model,
+            #         self.world_tokenizer,
+            #         world_update_prompt,
+            #         do_sample=False,
+            #         num_return_sequences=1,
+            #         eos_token_id=eos_token_id,
+            #     )[0]
+            #     world_change = world_output.split("[CHANGE]")[-1]
 
-                new_state = apply_change(world_change, last_state)
-                self.transitions[(last_state, last_action)] = new_state
+            #     new_state = apply_change(world_change, last_state)
+            #     self.transitions[(last_state, last_action)] = new_state
+            new_state = action(Matrix(eval(initial_state)))
             last_state = new_state
-        if "I have that, " not in last_state:
-            last_state_ = "I have that, " + last_state
-            states.append(last_state_.split("I have that, ")[1].strip())
-        else:
-            states.append(last_state.split("I have that, ")[1].strip())
-        goals = re.findall(
-            "the [a-z]{0,10} block is on top of the [a-z]{0,10} block", goal
-        )
-        meetings = [g in new_state for g in goals]
-        if sum(meetings) == len(meetings):
+        # if "I have that, " not in last_state:
+        #     last_state_ = "I have that, " + last_state
+        #     states.append(last_state_.split("I have that, ")[1].strip())
+        # else:
+        #     states.append(last_state.split("I have that, ")[1].strip())
+        # goals = re.findall(
+        #     "the [a-z]{0,10} block is on top of the [a-z]{0,10} block", goal
+        # )
+        # meetings = [g in new_state for g in goals]
+        if str(last_state) == str(goal):
             r1 = 100
         else:
-            r1 = 10 * sum(meetings) / len(meetings)
+            r1 = 0
 
         r1 = torch.tensor(r1).to(self.device)
 
@@ -865,12 +914,61 @@ class BlocksWorldGFNTask(LightningModule):
             icl_template = add_time(icl_template)
             previous_action = ""
             current_state = last_state
-            allowed_actions = generate_all_actions(last_state)
+            # change function generate_all_actions
+            data1 = {
+                "test": [{"input": initial_state, "output": goal}],
+                "train": [{"input": initial_state, "output": goal}],
+                "uuid": "some_unique_identifier",  # Replace with actual UUID logic if necessary
+            }
+            data1 = self.ensure_correct_format(data1)
+            print(data1)
+            task = Task(data1, 0)
+            cand = Candidate(ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2)))
+            cand.t = task
+            # allowed_actions = generate_all_actions(last_state)
+            func_list = getPossibleOperations(task, cand)
+            # allowed_actions_ = [
+            #     act for act in allowed_actions if act.lower() not in actions
+            # ]
+            print(func_list)
+            filtered_func_list = []
+            other_func_list = []
+            for func in func_list:
+                try:
+                    # Apply the function to the intermediate state
+                    result = func(Matrix(eval(initial_state)))
+                    # print(result)
+                    # print(target_state)
+                    # If the result matches the target state, keep the function
+                    if np.array_equal(result, eval(goal)):
+                        filtered_func_list.append(func)
+                        print(f"Function {func} can transform the state successfully")
+                    else:
+                        other_func_list.append(func)
+                except Exception as e:
+                    print(f"Error applying function {func}: {e}")
+            print("Length of filtered function list,", len(filtered_func_list))
+
+            # Choose all functions from filtered_func_list and a few from other_func_list
+            allowed_actions_ = filtered_func_list.copy()
+
+            # Define how many functions you want to randomly pick from other_func_list
+            num_random_from_other = 5  # For example, pick 3 random functions
+
+            # Ensure that we don't pick more than what's available in other_func_list
+            if len(other_func_list) > 0:
+                num_random_from_other = min(num_random_from_other, len(other_func_list))
+                allowed_actions_.extend(
+                    random.sample(other_func_list, num_random_from_other)
+                )
+            allowed_actions = allowed_actions_
+
+            print(allowed_actions_)
 
             inputs = (
-                icl_template.replace("<init_state>", current_state.lstrip())
+                icl_template.replace("<init_state>", str(current_state).lstrip())
                 .replace("<goals>", goal)
-                .replace("<action>", previous_action.lstrip())
+                .replace("<action>", str(previous_action).lstrip())
                 .replace("<step>", str(step).strip())
                 .strip()
             )
@@ -882,7 +980,7 @@ class BlocksWorldGFNTask(LightningModule):
             action = actions[step]
 
             bsz = len(allowed_actions)
-            action_texts = [ac for ac in allowed_actions]
+            action_texts = [str(ac) for ac in allowed_actions]
             action_ids = [
                 self.tokenizer.encode(
                     a, add_special_tokens=False, return_tensors="pt"
@@ -924,19 +1022,43 @@ class BlocksWorldGFNTask(LightningModule):
                             probs[j, batch_input_ids_with_actions[j, i]]
                         )
             action_logits = total_log_prob
+            max_logits = torch.max(action_logits)  # Find the maximum value
+            normalized_logits = action_logits - max_logits  # Subtract the max from all logits
+            action_logits = normalized_logits
+            print(action_logits)
+            print(torch.exp(action_logits))
+            print(torch.sum(
+                torch.exp(action_logits)
+            ))
 
             probabilities = torch.exp(action_logits) / torch.sum(
                 torch.exp(action_logits)
             )
+            def compare_partial_funcs(func1, func2):
+                """Compare two partial functions for equality by checking their function and args"""
+                return (
+                    func1.func == func2.func and
+                    func1.args == func2.args and
+                    func1.keywords == func2.keywords
+                )
+            from functools import partial
 
-            idx = allowed_actions.index(action.capitalize())
+
+            # Example of comparing the action with allowed actions
+            for idx, allowed_action in enumerate(allowed_actions):
+                if isinstance(allowed_action, partial) and isinstance(action, partial):
+                    if compare_partial_funcs(allowed_action, action):
+                        break
+            else:
+                idx=0
+            # idx = allowed_actions.index(str(action))
 
             log_pf.append(torch.log(probabilities[idx]))
 
             if step < len(actions) - 1:
                 last_state = states[step + 1]
 
-            allowed_actions = generate_all_actions(last_state)
+            # allowed_actions = generate_all_actions(last_state)
             pb = torch.tensor(1 / len(allowed_actions))
             log_bf.append(torch.log(pb))
         return torch.stack(log_pf).sum(), torch.stack(log_bf).sum()
@@ -947,13 +1069,15 @@ class BlocksWorldGFNTask(LightningModule):
 
         prompt = sample_prompt(self.init_prompt, shuffle_prompt=False, num_shot=4)
         for step_idx, (state, action) in enumerate(zip(states, actions)):
+            action = str(action)
+            state = str(state)
             icl_template = prompt["icl_list"][step_idx // 2]
             if step_idx == 0:
                 previous_action = ""
                 current_state = state
             else:
-                previous_action = actions[step_idx - 1] + "\n"
-                current_state = states[step_idx - 1]
+                previous_action = str(actions[step_idx - 1]) + "\n"
+                current_state = str(states[step_idx - 1])
             inputs = (
                 icl_template.replace("<init_state>", current_state.lstrip())
                 .replace("<goals>", goal)

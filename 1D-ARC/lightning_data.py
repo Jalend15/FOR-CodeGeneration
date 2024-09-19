@@ -48,11 +48,11 @@ class PromptDataModule(LightningDataModule):
     def setup_arc(self):
         train_csv = "data/1D_ARC_test_data.csv"
         complete_train_data = pd.read_csv(train_csv)
-        train_tasks = ["1d_move_2p", "1d_padded_fill", "1d_denoising_1c"]
+        train_tasks = ["1d_move_1p"]
         train_data_by_task = complete_train_data[
             complete_train_data["task"].isin(train_tasks)
         ]
-        no_of_examples_per_task = 5
+        no_of_examples_per_task = 1
         train_data_arc = train_data_by_task.groupby("task").head(
             no_of_examples_per_task
         )
@@ -104,7 +104,7 @@ class PromptDataModule(LightningDataModule):
                 problem, True, gt_plan_text, self.data
             )
             all_data.append([INIT, GOAL, PLAN])
-        print(all_data[0])
+        # print(all_data[0])
         all_data_arc = self.setup_arc()
         all_data = []
         for sample in all_data_arc["train"]:
@@ -113,7 +113,7 @@ class PromptDataModule(LightningDataModule):
         for sample in all_data_arc["test"]:
             INIT, GOAL, PLAN = sample["input"], sample["output"], "select a function"
             all_data.append([INIT, GOAL, PLAN])
-        print(all_data[0])
+        # print(all_data[0])
         if self.hparams.limit_prompts is not None:
             all_data = all_data[: self.hparams.limit_prompts]
         self.train_data = PromptDataPipe(all_data[:15])
@@ -168,8 +168,8 @@ def main():
     data_sample = data_module.setup_arc()
 
     # Inspect the train and test data after setup_arc
-    print("Train Data ARC (Sample):")
-    print(data_sample["train"][0])  # Print a few rows of train data
+    # print("Train Data ARC (Sample):")
+    # print(data_sample["train"][0])  # Print a few rows of train data
 
 
 if __name__ == "__main__":

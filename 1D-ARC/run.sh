@@ -1,9 +1,9 @@
 step=$2
 mkdir -p ./logs/step_${step} && \
 
-CUDA_VISIBLE_DEVICES=5 python main.py \
+CUDA_VISIBLE_DEVICES=5 taskset -c 0-2 python main.py \
     --step 2 \
-    --n_samples 4 \
+    --n_samples 10 \
     --epochs 1 \
     --ll-weight 1.5 \
     --pretrained_model "meta-llama/Meta-Llama-3-8B" \

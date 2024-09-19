@@ -5,7 +5,7 @@ import torch
 from pytorch_lightning import LightningModule
 from transformers.trainer_pt_utils import LabelSmoother
 from util import lora_to_base, base_to_lora
-
+import base64
 from bw_utils import *
 import yaml
 import json
@@ -26,9 +26,15 @@ from Task import Task
 from Utils import getPossibleOperations
 from Task import Matrix
 import math
+import Utils
 
 sys.path.append("gpt-plan-benchmark/gpt_plan_test")
 
+# Generate a map of all callable functions in the Utils module
+func_map = {func_name: getattr(Utils, func_name) for func_name in dir(Utils) if callable(getattr(Utils, func_name))}
+
+# Print the generated func_map to verify
+print(func_map)
 
 class Candidate:
     def __init__(self, ops, tasks, score=1000, predictions=np.zeros((2, 2))):
@@ -172,10 +178,70 @@ class BlocksWorldGFNTask(LightningModule):
             )
 
             for state, sample in zip(state_list, sample_list):
-                (actions, states) = eval(state)
-                log_pf, log_bf = self.forward_prob(
-                    f"{GOAL}", actions, states
-                )
+                print("statejalend", state)
+                # (actions, states) = eval(state)
+                decoded_data = base64.b64decode(state)
+
+                # Deserialize the binary data using pickle
+                deserialized_data = pickle.loads(decoded_data)
+
+                # Access actions and states
+                actions = deserialized_data["actions"]
+                states = deserialized_data["states"]
+                # # Extract actions and states
+                # actions = parsed_generated_text["actions"]
+                # states = parsed_generated_text["states"]
+
+                # print(actions)
+                # print(states)
+                print("actions_jalend",actions)
+                # actions = state["actions"]
+                # states = state["states"]
+                # # Define a regex pattern to match the function name and arguments
+                # pattern = r'functools\.partial\(<function (\w+) .*?, (.*?)\)'
+
+                # # Find all matches
+                # matches = re.findall(pattern, actions)
+
+                # # List to hold the parsed functools.partial objects
+                # actions_list = []
+
+                # for match in matches:
+                #     func_name = match[0]
+                #     args_str = match[1]
+
+                #     # Parse the arguments
+                #     args = {}
+                #     for arg in args_str.split(', '):
+                #         key, value = arg.split('=')
+                #         # Convert to the appropriate type
+                #         if value in ['True', 'False']:  # Handle booleans
+                #             value = value == 'True'
+                #         elif value.startswith("'") and value.endswith("'"):  # Handle strings
+                #             value = value.strip("'")
+                #         elif '.' in value:  # Handle floats
+                #             value = float(value)
+                #         else:  # Handle integers
+                #             try:
+                #                 value = int(value)
+                #             except ValueError:
+                #                 # In case value can't be converted to int (e.g., invalid literal like 'True')
+                #                 raise ValueError(f"Unexpected value: {value} for argument {key}")
+                        
+                #     # Add the parsed argument to the args dictionary
+                #     args[key] = value
+
+                #     # Get the actual function from the Utils module dynamically using getattr
+                #     func = getattr(Utils, func_name)
+
+                #     # Create functools.partial object and append it to the list
+                #     partial_func = functools.partial(func, **args)
+                #     actions_list.append(partial_func)
+
+                # Print the result
+                # print("ACTIONS_LIST",actions_list)
+                    
+                log_pf, log_bf = self.forward_prob(f"{GOAL}", actions, states)
                 LOG_PF.append(log_pf)
                 LOG_BF.append(log_bf)
             LOG_R.extend(log_reward_list)
@@ -198,24 +264,25 @@ class BlocksWorldGFNTask(LightningModule):
                     ll_reward = torch.tensor(ll_reward).to(self.device)
                     ll_weight = 1
                 else:
-                    ll_reward = self.get_ll_reward(
-                        actions, states, f"{GOAL}"
-                    )
+                    ll_reward = self.get_ll_reward(actions, states, f"{GOAL}")
                     ll_reward = -1 / ll_reward
                     ll_weight = self.args.ll_weight
 
                 LOG_R.append(torch.log(reward + ll_weight * ll_reward.sum()))
+                print(f"three losses, {reward}, {ll_weight}, {ll_reward.sum()}")
+                import json
+                generated_text = {"actions": actions, "states": states}
+                pickled_data = pickle.dumps(generated_text)
+                encoded_data = base64.b64encode(pickled_data).decode('utf-8')  # Convert to Base64 string
 
-                generated_text = (actions, states)
+                # generated_text_str = json.dumps(generated_text, cls=CustomEncoder)
                 self.replay_buffer.add(
                     GOAL + INIT,
-                    str(generated_text),
+                    encoded_data,
                     sample,
                     torch.log(reward + ll_weight * ll_reward.sum()),
                 )
-                log_pf, log_bf = self.forward_prob(
-                    f"{GOAL}", actions, states
-                )
+                log_pf, log_bf = self.forward_prob(f"{GOAL}", actions, states)
                 LOG_PF.append(log_pf)
                 LOG_BF.append(log_bf)
 
@@ -226,9 +293,10 @@ class BlocksWorldGFNTask(LightningModule):
                     best_actions = actions
                     best_states = states
                     best_reward = torch.log(reward + ll_weight * ll_reward.sum())
-
+                print("beststates", best_states)
                 # conduct local search
-            for _ in range(16):
+                # reduce to 8 or 4
+            for _ in range(4):
                 _, actions, states, reward, _ = self.local_search(
                     initial_state=f"{INIT}",
                     goal=f"{GOAL}",
@@ -246,9 +314,7 @@ class BlocksWorldGFNTask(LightningModule):
                     ll_reward = torch.tensor(ll_reward).to(self.device)
                     ll_weight = 1
                 else:
-                    ll_reward = self.get_ll_reward(
-                        actions, states, f"{GOAL}"
-                    )
+                    ll_reward = self.get_ll_reward(actions, states, f"{GOAL}")
                     ll_reward = -1 / ll_reward
                     ll_weight = self.args.ll_weight
 
@@ -258,16 +324,14 @@ class BlocksWorldGFNTask(LightningModule):
 
                 if log_reward > best_reward:
                     LOG_R.append(torch.log(reward + ll_weight * ll_reward.sum()))
-                    generated_text = (actions, states)
+                    generated_text = {"actions": actions, "states": states}
                     self.replay_buffer.add(
                         GOAL + INIT,
-                        str(generated_text),
+                        generated_text,
                         sample,
                         torch.log(reward + ll_weight * ll_reward.sum()),
                     )
-                    log_pf, log_bf = self.forward_prob(
-                        f"{GOAL}", actions, states
-                    )
+                    log_pf, log_bf = self.forward_prob(f"{GOAL}", actions, states)
                     LOG_PF.append(log_pf)
                     LOG_BF.append(log_bf)
 
@@ -289,6 +353,7 @@ class BlocksWorldGFNTask(LightningModule):
             log_bf=None,
             logpartition=True,
         )
+        print(f"Training loss {loss}")
 
         self.log(
             "train/loss",
@@ -510,10 +575,10 @@ class BlocksWorldGFNTask(LightningModule):
             item["input"] = np.array(item["input"], dtype=np.float32)
             item["output"] = np.array(item["output"], dtype=np.float32)
 
-            print(f"Train Input Type: {item['input'].dtype}")  # Check data type
-            print(f"Train Output Type: {item['output'].dtype}")
-            print(f"Train Input Shape: {item['input'].shape}")
-            print(f"Train Output Shape: {item['output'].shape}")
+            # print(f"Train Input Type: {item['input'].dtype}")  # Check data type
+            # print(f"Train Output Type: {item['output'].dtype}")
+            # print(f"Train Input Shape: {item['input'].shape}")
+            # print(f"Train Output Shape: {item['output'].shape}")
 
         for item in data["test"]:
             if isinstance(item["input"], str):
@@ -524,10 +589,10 @@ class BlocksWorldGFNTask(LightningModule):
             item["input"] = np.array(item["input"], dtype=np.float32)
             item["output"] = np.array(item["output"], dtype=np.float32)
 
-            print(f"Test Input Type: {item['input'].dtype}")  # Check data type
-            print(f"Test Output Type: {item['output'].dtype}")
-            print(f"Test Input Shape: {item['input'].shape}")
-            print(f"Test Output Shape: {item['output'].shape}")
+            # print(f"Test Input Type: {item['input'].dtype}")  # Check data type
+            # print(f"Test Output Type: {item['output'].dtype}")
+            # print(f"Test Input Shape: {item['input'].shape}")
+            # print(f"Test Output Shape: {item['output'].shape}")
 
         return data
 
@@ -563,7 +628,7 @@ class BlocksWorldGFNTask(LightningModule):
                 "uuid": "some_unique_identifier",  # Replace with actual UUID logic if necessary
             }
             data1 = self.ensure_correct_format(data1)
-            print(data1)
+            # print(data1)
             task = Task(data1, 0)
             cand = Candidate(ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2)))
             cand.t = task
@@ -572,7 +637,7 @@ class BlocksWorldGFNTask(LightningModule):
             # allowed_actions_ = [
             #     act for act in allowed_actions if act.lower() not in actions
             # ]
-            print(func_list)
+            # print(func_list)
             filtered_func_list = []
             other_func_list = []
             for func in func_list:
@@ -584,12 +649,12 @@ class BlocksWorldGFNTask(LightningModule):
                     # If the result matches the target state, keep the function
                     if np.array_equal(result, eval(goal)):
                         filtered_func_list.append(func)
-                        print(f"Function {func} can transform the state successfully")
+                        # print(f"Function {func} can transform the state successfully")
                     else:
                         other_func_list.append(func)
                 except Exception as e:
                     print(f"Error applying function {func}: {e}")
-            print("Length of filtered function list,", len(filtered_func_list))
+            # print("Length of filtered function list,", len(filtered_func_list))
 
             # Choose all functions from filtered_func_list and a few from other_func_list
             allowed_actions_ = filtered_func_list.copy()
@@ -605,7 +670,7 @@ class BlocksWorldGFNTask(LightningModule):
                 )
             allowed_actions = allowed_actions_
 
-            print(allowed_actions_)
+            # print(allowed_actions_)
 
             if len(allowed_actions_) != 0:
 
@@ -652,19 +717,19 @@ class BlocksWorldGFNTask(LightningModule):
                                 )
                         action_logits.append(total_log_prob)
                         # sample from tempered policy
-                    print("Action logits",action_logits)
-                    print("pf_temp",pf_temp)
+                    # print("Action logits", action_logits)
+                    # print("pf_temp", pf_temp)
                     action_logits = torch.stack(action_logits) / pf_temp
 
                     action_logits = action_logits.to(torch.float32)
                     max_logits = torch.max(action_logits)  # Find the maximum value
-                    normalized_logits = action_logits - max_logits  # Subtract the max from all logits
+                    normalized_logits = (
+                        action_logits - max_logits
+                    )  # Subtract the max from all logits
                     action_logits = normalized_logits
-                    print(action_logits)
-                    print(torch.exp(action_logits))
-                    print(torch.sum(
-                        torch.exp(action_logits)
-                    ))
+                    # print(action_logits)
+                    # print(torch.exp(action_logits))
+                    # print(torch.sum(torch.exp(action_logits)))
 
                     probabilities = torch.exp(action_logits) / torch.sum(
                         torch.exp(action_logits)
@@ -683,11 +748,12 @@ class BlocksWorldGFNTask(LightningModule):
             #     states.append(last_state_.split("I have that, ")[1].strip())
             # else:
             #     states.append(last_state.split("I have that, ")[1].strip())
+            print(last_state)
             states.append(last_state)
             actions.append(action)
 
             last_action = action
-            print(f"Action: {action}")
+            # print(f"Action: {action}")
             # change these actions
             # if "Pick" in last_action or "Pick".lower() in last_action:
             #     world_update_prompt = self.prompts["world_update_pickup"].format(
@@ -725,8 +791,12 @@ class BlocksWorldGFNTask(LightningModule):
             #     new_state = apply_change(world_change, last_state)
             #     self.transitions[(last_state, last_action)] = new_state
             new_state = action(Matrix(eval(initial_state)))
+            # Convert new_state from a numpy array to a list if it's a numpy array
+            if isinstance(new_state, np.ndarray):
+                new_state = new_state.tolist()
+
             last_state = new_state
-            print(new_state)
+            # print(new_state)
         states.append(last_state)
         # if "I have that, " not in last_state:
         #     last_state_ = "I have that, " + last_state
@@ -738,12 +808,12 @@ class BlocksWorldGFNTask(LightningModule):
         )
         # terminal rewards
         # meetings = [g in new_state for g in goals]
-        print(new_state)
-        print(goal)
+        # print("new state", new_state)
+        # print("goal", goal)
         if str(new_state) == str(goal):
             r1 = 100
         else:
-            r1 = 0
+            r1 = 1  # small number
 
         r1 = torch.tensor(r1).to(self.device)
 
@@ -778,23 +848,25 @@ class BlocksWorldGFNTask(LightningModule):
             if step < K:
                 action = plan[step]
             else:
-            # change function generate_all_actions
+                # change function generate_all_actions
                 data1 = {
                     "test": [{"input": initial_state, "output": goal}],
                     "train": [{"input": initial_state, "output": goal}],
                     "uuid": "some_unique_identifier",  # Replace with actual UUID logic if necessary
                 }
                 data1 = self.ensure_correct_format(data1)
-                print(data1)
+                # print(data1)
                 task = Task(data1, 0)
-                cand = Candidate(ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2)))
+                cand = Candidate(
+                    ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2))
+                )
                 cand.t = task
                 # allowed_actions = generate_all_actions(last_state)
                 func_list = getPossibleOperations(task, cand)
                 # allowed_actions_ = [
                 #     act for act in allowed_actions if act.lower() not in actions
                 # ]
-                print(func_list)
+                # print(func_list)
                 filtered_func_list = []
                 other_func_list = []
                 for func in func_list:
@@ -806,12 +878,14 @@ class BlocksWorldGFNTask(LightningModule):
                         # If the result matches the target state, keep the function
                         if np.array_equal(result, eval(goal)):
                             filtered_func_list.append(func)
-                            print(f"Function {func} can transform the state successfully")
+                            # print(
+                            #     f"Function {func} can transform the state successfully"
+                            # )
                         else:
                             other_func_list.append(func)
                     except Exception as e:
                         print(f"Error applying function {func}: {e}")
-                print("Length of filtered function list,", len(filtered_func_list))
+                # print("Length of filtered function list,", len(filtered_func_list))
 
                 # Choose all functions from filtered_func_list and a few from other_func_list
                 allowed_actions_ = filtered_func_list.copy()
@@ -821,7 +895,9 @@ class BlocksWorldGFNTask(LightningModule):
 
                 # Ensure that we don't pick more than what's available in other_func_list
                 if len(other_func_list) > 0:
-                    num_random_from_other = min(num_random_from_other, len(other_func_list))
+                    num_random_from_other = min(
+                        num_random_from_other, len(other_func_list)
+                    )
                     allowed_actions_.extend(
                         random.sample(other_func_list, num_random_from_other)
                     )
@@ -889,10 +965,12 @@ class BlocksWorldGFNTask(LightningModule):
         #     "the [a-z]{0,10} block is on top of the [a-z]{0,10} block", goal
         # )
         # meetings = [g in new_state for g in goals]
+        # print("last state", last_state)
+        # print("goal", goal)
         if str(last_state) == str(goal):
             r1 = 100
         else:
-            r1 = 0
+            r1 = 2
 
         r1 = torch.tensor(r1).to(self.device)
 
@@ -908,8 +986,8 @@ class BlocksWorldGFNTask(LightningModule):
         last_state = initial_state
         log_pf = []
         log_bf = []
+        print("len of actions",len(actions))
         for step in range(len(actions)):
-
             icl_template = prompt["icl_list"][step // 2]
             icl_template = add_time(icl_template)
             previous_action = ""
@@ -921,7 +999,7 @@ class BlocksWorldGFNTask(LightningModule):
                 "uuid": "some_unique_identifier",  # Replace with actual UUID logic if necessary
             }
             data1 = self.ensure_correct_format(data1)
-            print(data1)
+            # print(data1)
             task = Task(data1, 0)
             cand = Candidate(ops=[], tasks=[], score=1000, predictions=np.zeros((2, 2)))
             cand.t = task
@@ -930,7 +1008,7 @@ class BlocksWorldGFNTask(LightningModule):
             # allowed_actions_ = [
             #     act for act in allowed_actions if act.lower() not in actions
             # ]
-            print(func_list)
+            # print(func_list)
             filtered_func_list = []
             other_func_list = []
             for func in func_list:
@@ -942,12 +1020,12 @@ class BlocksWorldGFNTask(LightningModule):
                     # If the result matches the target state, keep the function
                     if np.array_equal(result, eval(goal)):
                         filtered_func_list.append(func)
-                        print(f"Function {func} can transform the state successfully")
+                        # print(f"Function {func} can transform the state successfully")
                     else:
                         other_func_list.append(func)
                 except Exception as e:
                     print(f"Error applying function {func}: {e}")
-            print("Length of filtered function list,", len(filtered_func_list))
+            # print("Length of filtered function list,", len(filtered_func_list))
 
             # Choose all functions from filtered_func_list and a few from other_func_list
             allowed_actions_ = filtered_func_list.copy()
@@ -963,7 +1041,7 @@ class BlocksWorldGFNTask(LightningModule):
                 )
             allowed_actions = allowed_actions_
 
-            print(allowed_actions_)
+            # print(allowed_actions_)
 
             inputs = (
                 icl_template.replace("<init_state>", str(current_state).lstrip())
@@ -1023,26 +1101,52 @@ class BlocksWorldGFNTask(LightningModule):
                         )
             action_logits = total_log_prob
             max_logits = torch.max(action_logits)  # Find the maximum value
-            normalized_logits = action_logits - max_logits  # Subtract the max from all logits
+            normalized_logits = (
+                action_logits - max_logits
+            )  # Subtract the max from all logits
             action_logits = normalized_logits
-            print(action_logits)
-            print(torch.exp(action_logits))
-            print(torch.sum(
-                torch.exp(action_logits)
-            ))
+            # print(action_logits)
+            # print(torch.exp(action_logits))
+            # print(torch.sum(torch.exp(action_logits)))
 
             probabilities = torch.exp(action_logits) / torch.sum(
                 torch.exp(action_logits)
             )
+
+            import torch.nn.functional as F
+
+            # print("action logits", torch.sum(torch.exp(action_logits)))
+            # print("expo", torch.exp(action_logits))
+            # print("logits", action_logits)
+
+            # Use softmax to calculate the probabilities directly
+            # probabilities = F.softmax(action_logits, dim=0)
+            # Define a small epsilon value for smoothing
+            action_logits = action_logits.to(torch.float64)
+
+            probabilities = torch.exp(action_logits) / torch.sum(
+                torch.exp(action_logits)
+            )
+            epsilon = 1e-9
+            # print("Befora dding ", probabilities)
+            # Apply smoothing to avoid log(0)
+            probabilities = probabilities + epsilon
+
+            # print(f"Training loss probs after epsilon: {probabilities}")
+
+            # # Make sure no log(0) happens by checking if idx is valid
+            # log_pf.append(torch.log(probabilities[idx]))
+            # print(f"traing loss probs: {probabilities}")
+
             def compare_partial_funcs(func1, func2):
                 """Compare two partial functions for equality by checking their function and args"""
                 return (
-                    func1.func == func2.func and
-                    func1.args == func2.args and
-                    func1.keywords == func2.keywords
+                    func1.func == func2.func
+                    and func1.args == func2.args
+                    and func1.keywords == func2.keywords
                 )
-            from functools import partial
 
+            from functools import partial
 
             # Example of comparing the action with allowed actions
             for idx, allowed_action in enumerate(allowed_actions):
@@ -1050,16 +1154,17 @@ class BlocksWorldGFNTask(LightningModule):
                     if compare_partial_funcs(allowed_action, action):
                         break
             else:
-                idx=0
+                idx = 0
             # idx = allowed_actions.index(str(action))
 
             log_pf.append(torch.log(probabilities[idx]))
 
-            if step < len(actions) - 1:
+            if step < len(states) - 1:
                 last_state = states[step + 1]
 
             # allowed_actions = generate_all_actions(last_state)
             pb = torch.tensor(1 / len(allowed_actions))
+            # print(f"length of allowed actions {pb}")
             log_bf.append(torch.log(pb))
         return torch.stack(log_pf).sum(), torch.stack(log_bf).sum()
 
@@ -1070,6 +1175,10 @@ class BlocksWorldGFNTask(LightningModule):
         prompt = sample_prompt(self.init_prompt, shuffle_prompt=False, num_shot=4)
         for step_idx, (state, action) in enumerate(zip(states, actions)):
             action = str(action)
+            if isinstance(state, np.ndarray):
+                # Convert the numpy array to a list
+                state = state.tolist()
+            # Convert the state to a string
             state = str(state)
             icl_template = prompt["icl_list"][step_idx // 2]
             if step_idx == 0:
@@ -1077,6 +1186,8 @@ class BlocksWorldGFNTask(LightningModule):
                 current_state = state
             else:
                 previous_action = str(actions[step_idx - 1]) + "\n"
+                if isinstance(states[step_idx - 1], np.ndarray):
+                    states[step_idx - 1] = states[step_idx - 1].tolist()
                 current_state = str(states[step_idx - 1])
             inputs = (
                 icl_template.replace("<init_state>", current_state.lstrip())

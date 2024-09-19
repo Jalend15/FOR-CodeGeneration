@@ -228,7 +228,7 @@ class BlocksWorldGFNTask(LightningModule):
                     best_reward = torch.log(reward + ll_weight * ll_reward.sum())
 
                 # conduct local search
-            for _ in range(16):
+            for _ in range(4):
                 _, actions, states, reward, _ = self.local_search(
                     initial_state=f"I have that, {INIT}.",
                     goal=f"My goal is to have that {GOAL}.",

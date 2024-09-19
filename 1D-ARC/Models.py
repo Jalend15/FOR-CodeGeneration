@@ -29,7 +29,7 @@ class OneConvModel(nn.Module):
         if x.dtype != torch.float32:
             x = x.float()  # Convert to float32 if necessary
         self.conv = self.conv.float()
-        print("Input type after conversion (if needed):", x.dtype)
+        # print("Input type after conversion (if needed):", x.dtype)
         for _ in range(steps):
             x = self.conv(self.pad(x))
         return x

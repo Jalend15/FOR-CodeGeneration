@@ -1,0 +1,471 @@
+{'Counter': <class 'collections.Counter'>, 'EvolvingLine': <class 'Utils.EvolvingLine'>, 'alignShapes': <function alignShapes at 0x7fe6bc6325c0>, 'applyEvolve': <function applyEvolve at 0x7fe6bc62c720>, 'arrangeShapes': <function arrangeShapes at 0x7fe6bc632340>, 'changeColorShapes': <function changeColorShapes at 0x7fe6bc62d940>, 'changeShapes': <function changeShapes at 0x7fe6bc62d9e0>, 'changeShapesWithFeatures': <function changeShapesWithFeatures at 0x7fe6bc62e020>, 'colorAppearingXTimes': <function colorAppearingXTimes at 0x7fe6bc630fe0>, 'colorByPixels': <function colorByPixels at 0x7fe6bc631f80>, 'colorDNeighbours': <function colorDNeighbours at 0x7fe6bc62c5e0>, 'colorLongestLines': <function colorLongestLines at 0x7fe6bc62ed40>, 'colorMap': <function colorMap at 0x7fe6bc62d8a0>, 'colorNeighbours': <function colorNeighbours at 0x7fe6bc62c540>, 'colorSubmatricesWithReference': <function colorSubmatricesWithReference at 0x7fe6bc62fec0>, 'colorSymmetricPixels': <function colorSymmetricPixels at 0x7fe6bc7e3ce0>, 'combinations': <class 'itertools.combinations'>, 'combinations_with_replacement': <class 'itertools.combinations_with_replacement'>, 'completeRectangles': <function completeRectangles at 0x7fe6bc62f1a0>, 'connectAnyPixels': <function connectAnyPixels at 0x7fe6bc62f380>, 'connectPixels': <function connectPixels at 0x7fe6bc62f2e0>, 'correctFixedColors': <function correctFixedColors at 0x7fe6bc7e1440>, 'countColors': <function countColors at 0x7fe6bc6319e0>, 'countShapes': <function countShapes at 0x7fe6bc631b20>, 'cropAllBackground': <function cropAllBackground at 0x7fe6bc633100>, 'cropAllShapes': <function cropAllShapes at 0x7fe6bc631620>, 'cropFullFrame': <function cropFullFrame at 0x7fe6bc633240>, 'cropOnlyMulticolorShape': <function cropOnlyMulticolorShape at 0x7fe6bc6331a0>, 'cropPartialFrame': <function cropPartialFrame at 0x7fe6bc6332e0>, 'cropShape': <function cropShape at 0x7fe6bc632f20>, 'cropShapeReference': <function cropShapeReference at 0x7fe6bc633060>, 'deBackgroundizeMatrix': <function deBackgroundizeMatrix at 0x7fe6bc7e3920>, 'deletePixels': <function deletePixels at 0x7fe6bc62f240>, 'deleteShape': <function deleteShape at 0x7fe6bc62d6c0>, 'deleteShapes': <function deleteShapes at 0x7fe6bc632200>, 'detectEvolvingLineSources': <function detectEvolvingLineSources at 0x7fe6bc62c860>, 'doBestMultiplyMatrix': <function doBestMultiplyMatrix at 0x7fe6bc6307c0>, 'doPixelMod2Alternate': <function doPixelMod2Alternate at 0x7fe6bc62e7a0>, 'doPixelMod2Col': <function doPixelMod2Col at 0x7fe6bc62e520>, 'doPixelMod2ColReverse': <function doPixelMod2ColReverse at 0x7fe6bc62e660>, 'doPixelMod2Row': <function doPixelMod2Row at 0x7fe6bc62e2a0>, 'doPixelMod2RowReverse': <function doPixelMod2RowReverse at 0x7fe6bc62e3e0>, 'doPixelMod3Alternate': <function doPixelMod3Alternate at 0x7fe6bc62e840>, 'doPixelMod3Col': <function doPixelMod3Col at 0x7fe6bc62e5c0>, 'doPixelMod3ColReverse': <function doPixelMod3ColReverse at 0x7fe6bc62e700>, 'doPixelMod3Row': <function doPixelMod3Row at 0x7fe6bc62e340>, 'doPixelMod3RowReverse': <function doPixelMod3RowReverse at 0x7fe6bc62e480>, 'doRulesWithReference': <function doRulesWithReference at 0x7fe6bc62e200>, 'downsize': <function downsize at 0x7fe6bc630040>, 'downsizeMode': <function downsizeMode at 0x7fe6bc631e40>, 'drawEvolvingLines': <function drawEvolvingLines at 0x7fe6bc62cc20>, 'dummify': <function dummify at 0x7fe6bc7e3a60>, 'dummifyColor': <function dummifyColor at 0x7fe6bc7e3b00>, 'evolve': <function evolve at 0x7fe6bc62c680>, 'executePixelRecolor': <function executePixelRecolor at 0x7fe6bc62e160>, 'extendColor': <function extendColor at 0x7fe6bc62eb60>, 'extendMatrix': <function extendMatrix at 0x7fe6bc630180>, 'fillRectangleInside': <function fillRectangleInside at 0x7fe6bc62eca0>, 'fillTheBlank': <function fillTheBlank at 0x7fe6bc62fc40>, 'fillTheBlankParameters': <function fillTheBlankParameters at 0x7fe6bc62fba0>, 'fitToFrame': <function fitToFrame at 0x7fe6bc6318a0>, 'flipAllShapes': <function flipAllShapes at 0x7fe6bc62f600>, 'flipShape': <function flipShape at 0x7fe6bc62f560>, 'followPattern': <function followPattern at 0x7fe6bc62fb00>, 'generateMosaic': <function generateMosaic at 0x7fe6bc630680>, 'getAllNeighbourColors': <function getAllNeighbourColors at 0x7fe6bc62c4a0>, 'getBestAlignShapes': <function getBestAlignShapes at 0x7fe6bc632520>, 'getBestArrangeShapes': <function getBestArrangeShapes at 0x7fe6bc6322a0>, 'getBestCNN': <function getBestCNN at 0x7fe6bc62c220>, 'getBestColorByPixels': <function getBestColorByPixels at 0x7fe6bc631ee0>, 'getBestColorSymmetricPixels': <function getBestColorSymmetricPixels at 0x7fe6bc7e3d80>, 'getBestCountColors': <function getBestCountColors at 0x7fe6bc631940>, 'getBestCountShapes': <function getBestCountShapes at 0x7fe6bc631a80>, 'getBestCropReference': <function getBestCropReference at 0x7fe6bc632fc0>, 'getBestCropShape': <function getBestCropShape at 0x7fe6bc632e80>, 'getBestDeleteShapes': <function getBestDeleteShapes at 0x7fe6bc6320c0>, 'getBestEvolve': <function getBestEvolve at 0x7fe6bc62c7c0>, 'getBestEvolvingLines': <function getBestEvolvingLines at 0x7fe6bc62cae0>, 'getBestExtendColor': <function getBestExtendColor at 0x7fe6bc62ec00>, 'getBestExtendMatrix': <function getBestExtendMatrix at 0x7fe6bc630220>, 'getBestFitToFrame': <function getBestFitToFrame at 0x7fe6bc631800>, 'getBestFlipAllShapes': <function getBestFlipAllShapes at 0x7fe6bc62f6a0>, 'getBestLSTM': <function getBestLSTM at 0x7fe6bc62d580>, 'getBestLayShapes': <function getBestLayShapes at 0x7fe6bc6323e0>, 'getBestMosaic': <function getBestMosaic at 0x7fe6bc6305e0>, 'getBestMoveShapes': <function getBestMoveShapes at 0x7fe6bc62f060>, 'getBestMoveShapesNoRestore': <function getBestMoveShapesNoRestore at 0x7fe6bc62f100>, 'getBestMoveToPanel': <function getBestMoveToPanel at 0x7fe6bc632980>, 'getBestMultiplyMatrix': <function getBestMultiplyMatrix at 0x7fe6bc630720>, 'getBestOrderGridCells': <function getBestOrderGridCells at 0x7fe6bc631580>, 'getBestPaintShapeFromBorderColor': <function getBestPaintShapeFromBorderColor at 0x7fe6bc62dc60>, 'getBestPaintShapesInHalf': <function getBestPaintShapesInHalf at 0x7fe6bc62db20>, 'getBestReplicateOneShape': <function getBestReplicateOneShape at 0x7fe6bc632840>, 'getBestReplicateShapes': <function getBestReplicateShapes at 0x7fe6bc632700>, 'getBestSameNSampleColorsCNN': <function getBestSameNSampleColorsCNN at 0x7fe6bc62c2c0>, 'getBestSubmatrixPosition': <function getBestSubmatrixPosition at 0x7fe6bc630e00>, 'getBestSurroundShapes': <function getBestSurroundShapes at 0x7fe6bc62eac0>, 'getBestSymmetrizeAllShapes': <function getBestSymmetrizeAllShapes at 0x7fe6bc631bc0>, 'getBestSymmetrizeSubmatrix': <function getBestSymmetrizeSubmatrix at 0x7fe6bc62d800>, 'getBestTwoShapeFunction': <function getBestTwoShapeFunction at 0x7fe6bc633380>, 'getClosestFixedShapeColor': <function getClosestFixedShapeColor at 0x7fe6bc62de40>, 'getColorChangesWithFeatures': <function getColorChangesWithFeatures at 0x7fe6bc62df80>, 'getCropAttributes': <function getCropAttributes at 0x7fe6bc632de0>, 'getDNeighbourColors': <function getDNeighbourColors at 0x7fe6bc62c400>, 'getDeleteAttributes': <function getDeleteAttributes at 0x7fe6bc632160>, 'getDownsizeFactors': <function getDownsizeFactors at 0x7fe6bc62ff60>, 'getFactor': <function getFactor at 0x7fe6bc6302c0>, 'getLayerDict': <function getLayerDict at 0x7fe6bc6316c0>, 'getNeighbourColors': <function getNeighbourColors at 0x7fe6bc62c360>, 'getPixelChangeCriteria': <function getPixelChangeCriteria at 0x7fe6bc62e8e0>, 'getPossibleOperations': <function getPossibleOperations at 0x7fe6bc6334c0>, 'getShapeFeaturesForColorChange': <function getShapeFeaturesForColorChange at 0x7fe6bc62dee0>, 'getSubmatrices': <function getSubmatrices at 0x7fe6bc630a40>, 'hasFeatures': <function hasFeatures at 0x7fe6bc62dda0>, 'identifyColStep': <function identifyColStep at 0x7fe6bc62f9c0>, 'identifyColor': <function identifyColor at 0x7fe6bc62f920>, 'identifyRowStep': <function identifyRowStep at 0x7fe6bc62fa60>, 'identityM': <function identityM at 0x7fe6bc7a6160>, 'incorrectPixels': <function incorrectPixels at 0x7fe6bc7e3740>, 'insertShape': <function insertShape at 0x7fe6bc62d620>, 'isDeleteTask': <function isDeleteTask at 0x7fe6bc632020>, 'isFixedShape': <function isFixedShape at 0x7fe6bc62dd00>, 'isReplicateTask': <function isReplicateTask at 0x7fe6bc632660>, 'layShapes': <function layShapes at 0x7fe6bc632480>, 'makeShapeRotationInvariant': <function makeShapeRotationInvariant at 0x7fe6bc62f880>, 'mapPixels': <function mapPixels at 0x7fe6bc62f740>, 'matrixBotRight': <function matrixBotRight at 0x7fe6bc630540>, 'matrixTopLeft': <function matrixTopLeft at 0x7fe6bc6304a0>, 'maxColorFromCell': <function maxColorFromCell at 0x7fe6bc630f40>, 'mergeMatrices': <function mergeMatrices at 0x7fe6bc62cb80>, 'minimize': <function minimize at 0x7fe6bc6300e0>, 'mirror': <function mirror at 0x7fe6bc62f4c0>, 'moveAllShapes': <function moveAllShapes at 0x7fe6bc62ee80>, 'moveAllShapesToClosest': <function moveAllShapesToClosest at 0x7fe6bc62efc0>, 'moveShape': <function moveShape at 0x7fe6bc62ede0>, 'moveShapeToClosest': <function moveShapeToClosest at 0x7fe6bc62ef20>, 'moveToPanel': <function moveToPanel at 0x7fe6bc632a20>, 'multiplyMatrices': <function multiplyMatrices at 0x7fe6bc632b60>, 'multiplyMatrix': <function multiplyMatrix at 0x7fe6bc630400>, 'multiplyPixels': <function multiplyPixels at 0x7fe6bc630360>, 'multiplyPixelsAndAnd': <function multiplyPixelsAndAnd at 0x7fe6bc630860>, 'multiplyPixelsAndOr': <function multiplyPixelsAndOr at 0x7fe6bc630900>, 'multiplyPixelsAndXor': <function multiplyPixelsAndXor at 0x7fe6bc6309a0>, 'orderGridCells': <function orderGridCells at 0x7fe6bc6314e0>, 'outputIsSubmatrix': <function outputIsSubmatrix at 0x7fe6bc630ae0>, 'overlapMatrices': <function overlapMatrices at 0x7fe6bc632ca0>, 'overlapShapes': <function overlapShapes at 0x7fe6bc632d40>, 'overlapSubmatrices': <function overlapSubmatrices at 0x7fe6bc632c00>, 'paintCrossedCoordinates': <function paintCrossedCoordinates at 0x7fe6bc62ccc0>, 'paintGridCellWithMostColor': <function paintGridCellWithMostColor at 0x7fe6bc631440>, 'paintGridLikeBackground': <function paintGridLikeBackground at 0x7fe6bc631d00>, 'paintGridLikeOriginal': <function paintGridLikeOriginal at 0x7fe6bc631da0>, 'paintShapeFromBorderColor': <function paintShapeFromBorderColor at 0x7fe6bc62dbc0>, 'paintShapesInHalf': <function paintShapesInHalf at 0x7fe6bc62da80>, 'partial': <class 'functools.partial'>, 'permutations': <class 'itertools.permutations'>, 'pixelRecolor': <function pixelRecolor at 0x7fe6bc62e0c0>, 'pixelwiseAnd': <function pixelwiseAnd at 0x7fe6bc62fce0>, 'pixelwiseAndInGridSubmatrices': <function pixelwiseAndInGridSubmatrices at 0x7fe6bc631260>, 'pixelwiseAndInSubmatrices': <function pixelwiseAndInSubmatrices at 0x7fe6bc631080>, 'pixelwiseOr': <function pixelwiseOr at 0x7fe6bc62fd80>, 'pixelwiseOrInGridSubmatrices': <function pixelwiseOrInGridSubmatrices at 0x7fe6bc631300>, 'pixelwiseOrInSubmatrices': <function pixelwiseOrInSubmatrices at 0x7fe6bc631120>, 'pixelwiseXor': <function pixelwiseXor at 0x7fe6bc62fe20>, 'pixelwiseXorInGridSubmatrices': <function pixelwiseXorInGridSubmatrices at 0x7fe6bc6313a0>, 'pixelwiseXorInSubmatrices': <function pixelwiseXorInSubmatrices at 0x7fe6bc6311c0>, 'predictCNN': <function predictCNN at 0x7fe6bc62c180>, 'predictCNNDummyColor': <function predictCNNDummyColor at 0x7fe6bc7e3f60>, 'predictLSTM': <function predictLSTM at 0x7fe6bc62d4e0>, 'predictLinearDummyModel': <function predictLinearDummyModel at 0x7fe6bc62d080>, 'predictLinearModel': <function predictLinearModel at 0x7fe6bc62cea0>, 'predictLinearModelShapeColor': <function predictLinearModelShapeColor at 0x7fe6bc62d260>, 'prepare_sequence': <function prepare_sequence at 0x7fe6bc62d300>, 'printShapes': <function printShapes at 0x7fe6bc632ac0>, 'product': <class 'itertools.product'>, 'relDicts': <function relDicts at 0x7fe6bc7e39c0>, 'replicateOneShape': <function replicateOneShape at 0x7fe6bc6328e0>, 'replicateShapes': <function replicateShapes at 0x7fe6bc6327a0>, 'rotate': <function rotate at 0x7fe6bc62f420>, 'selectSubmatrixInPosition': <function selectSubmatrixInPosition at 0x7fe6bc630ea0>, 'selectSubmatrixWithLeastColors': <function selectSubmatrixWithLeastColors at 0x7fe6bc630d60>, 'selectSubmatrixWithMaxColor': <function selectSubmatrixWithMaxColor at 0x7fe6bc630b80>, 'selectSubmatrixWithMinColor': <function selectSubmatrixWithMinColor at 0x7fe6bc630c20>, 'selectSubmatrixWithMostColors': <function selectSubmatrixWithMostColors at 0x7fe6bc630cc0>, 'subMatToLayer': <function subMatToLayer at 0x7fe6bc631760>, 'surroundAllShapes': <function surroundAllShapes at 0x7fe6bc62ea20>, 'surroundShape': <function surroundShape at 0x7fe6bc62e980>, 'switchColors': <function switchColors at 0x7fe6bc62f7e0>, 'symmetrize': <function symmetrize at 0x7fe6bc7e3c40>, 'symmetrizeAllShapes': <function symmetrizeAllShapes at 0x7fe6bc631c60>, 'symmetrizeSubmatrix': <function symmetrizeSubmatrix at 0x7fe6bc62d760>, 'trainCNN': <function trainCNN at 0x7fe6bc62c040>, 'trainCNNDummyColor': <function trainCNNDummyColor at 0x7fe6bc7e3e20>, 'trainLSTM': <function trainLSTM at 0x7fe6bc62d3a0>, 'trainLinearDummyModel': <function trainLinearDummyModel at 0x7fe6bc62cf40>, 'trainLinearModel': <function trainLinearModel at 0x7fe6bc62cd60>, 'trainLinearModelShapeColor': <function trainLinearModelShapeColor at 0x7fe6bc62d120>, 'twoShapeFun': <function twoShapeFun at 0x7fe6bc633420>, 'updateBestFunction': <function updateBestFunction at 0x7fe6bc7e3ba0>}
+<lightning_data.PromptDataModule object at 0x7fe6b0257fb0>
+None
+Training: |          | 0/? [00:00<?, ?it/s]Training:   0%|          | 0/2 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/2 [00:00<?, ?it/s] sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+three losses, 1, 1.5, 0.0223388671875
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+beststates ['[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]', [[0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]], [[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+three losses, 1, 1.5, 0.02099609375
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+beststates ['[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]', [[0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]], [[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+three losses, 100, 1.5, 0.0171356201171875
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+beststates ['[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]', [[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]], [[0, 0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0]]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+three losses, 100, 1.5, 0.015960693359375
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+beststates ['[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]', [[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]], [[0, 0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0]]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+three losses, 1, 1.5, 0.03680419921875
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+beststates ['[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]', [[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]], [[0, 0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0]]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+three losses, 1, 1.5, 0.01959228515625
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+beststates ['[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]', [[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]], [[0, 0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0]]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+three losses, 1, 1.5, 0.034576416015625
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+beststates ['[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]', [[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]], [[0, 0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0]]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+three losses, 1, 1.5, 0.02069091796875
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+beststates ['[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]', [[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]], [[0, 0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0]]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0]]
+three losses, 1, 1.5, 0.01708984375
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+beststates ['[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]', [[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]], [[0, 0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0]]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+[[0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]]
+three losses, 1, 1.5, 0.028045654296875
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+beststates ['[[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]]', [[0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0]], [[0, 0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0]]]
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+Training loss 45.78735327514332
+Epoch 0:  50%|█████     | 1/2 [02:20<02:20,  0.01it/s]Epoch 0:  50%|█████     | 1/2 [02:20<02:20,  0.01it/s, v_num=141, train/loss_step=45.80]statejalend gASVAgIAAAAAAAB9lCiMB2FjdGlvbnOUXZQojAlmdW5jdG9vbHOUjAdwYXJ0aWFslJOUjAVVdGlsc5SME2ZpbGxSZWN0YW5nbGVJbnNpZGWUk5SFlFKUKGgIKX2UKIwOcmVjdGFuZ2xlQ29sb3KUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAZzY2FsYXKUk5SMBW51bXB5lIwFZHR5cGWUk5SMAmY0lImIh5RSlChLA4wBPJROTk5K/////0r/////SwB0lGJDBAAAAACUhpRSlIwJZmlsbENvbG9ylGgPaBVDBAAAAEGUhpRSlHVOdJRiaAVoBowNbW92ZUFsbFNoYXBlc5STlIWUUpQoaCEpfZQojApiYWNrZ3JvdW5klGgPaBVDBAAAAACUhpRSlIwFdW50aWyUSv7///+MCWRpcmVjdGlvbpSMAXKUjAVjb2xvcpSMEmRpYWdvbmFsTXVsdGlDb2xvcpSMBm5TdGVwc5SMBnNoYXBlWJR1TnSUYmWMBnN0YXRlc5RdlCiML1tbMCwgMCwgOCwgOCwgOCwgOCwgOCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF1dlF2UXZQoSwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAEsAZWFdlF2UKEsASwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAGVhZXUu
+actions_jalend [functools.partial(<function fillRectangleInside at 0x7fe6bc62eca0>, rectangleColor=0.0, fillColor=8.0), functools.partial(<function moveAllShapes at 0x7fe6bc62ee80>, background=0.0, until=-2, direction='r', color='diagonalMultiColor', nSteps='shapeX')]
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+statejalend gASVAgIAAAAAAAB9lCiMB2FjdGlvbnOUXZQojAlmdW5jdG9vbHOUjAdwYXJ0aWFslJOUjAVVdGlsc5SME2ZpbGxSZWN0YW5nbGVJbnNpZGWUk5SFlFKUKGgIKX2UKIwOcmVjdGFuZ2xlQ29sb3KUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAZzY2FsYXKUk5SMBW51bXB5lIwFZHR5cGWUk5SMAmY0lImIh5RSlChLA4wBPJROTk5K/////0r/////SwB0lGJDBAAAAACUhpRSlIwJZmlsbENvbG9ylGgPaBVDBAAAAEGUhpRSlHVOdJRiaAVoBowNbW92ZUFsbFNoYXBlc5STlIWUUpQoaCEpfZQojApiYWNrZ3JvdW5klGgPaBVDBAAAAACUhpRSlIwFdW50aWyUSv7///+MCWRpcmVjdGlvbpSMAXKUjAVjb2xvcpSMEmRpYWdvbmFsTXVsdGlDb2xvcpSMBm5TdGVwc5SMBnNoYXBlWJR1TnSUYmWMBnN0YXRlc5RdlCiML1tbMCwgMCwgOCwgOCwgOCwgOCwgOCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF1dlF2UXZQoSwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAEsAZWFdlF2UKEsASwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAGVhZXUu
+actions_jalend [functools.partial(<function fillRectangleInside at 0x7fe6bc62eca0>, rectangleColor=0.0, fillColor=8.0), functools.partial(<function moveAllShapes at 0x7fe6bc62ee80>, background=0.0, until=-2, direction='r', color='diagonalMultiColor', nSteps='shapeX')]
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+statejalend gASVzAEAAAAAAAB9lCiMB2FjdGlvbnOUXZQojAlmdW5jdG9vbHOUjAdwYXJ0aWFslJOUjAVVdGlsc5SMDGRlbGV0ZVBpeGVsc5STlIWUUpQoaAgpfZSMCWRpYWdvbmFsc5SIc050lGJoBWgGjA1tb3ZlQWxsU2hhcGVzlJOUhZRSlChoDyl9lCiMCmJhY2tncm91bmSUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAZzY2FsYXKUk5SMBW51bXB5lIwFZHR5cGWUk5SMAmY0lImIh5RSlChLA4wBPJROTk5K/////0r/////SwB0lGJDBAAAAACUhpRSlIwFdW50aWyUSv7///+MCWRpcmVjdGlvbpSMAXKUjAVjb2xvcpSMEmRpYWdvbmFsTXVsdGlDb2xvcpSMBm5TdGVwc5SMBnNoYXBlWJR1TnSUYmWMBnN0YXRlc5RdlCiML1tbMCwgMCwgOCwgOCwgOCwgOCwgOCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF1dlF2UXZQoSwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAEsAZWFdlF2UKEsASwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAGVhZXUu
+actions_jalend [functools.partial(<function deletePixels at 0x7fe6bc62f240>, diagonals=True), functools.partial(<function moveAllShapes at 0x7fe6bc62ee80>, background=0.0, until=-2, direction='r', color='diagonalMultiColor', nSteps='shapeX')]
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+statejalend gASVzAEAAAAAAAB9lCiMB2FjdGlvbnOUXZQojAlmdW5jdG9vbHOUjAdwYXJ0aWFslJOUjAVVdGlsc5SMDGRlbGV0ZVBpeGVsc5STlIWUUpQoaAgpfZSMCWRpYWdvbmFsc5SIc050lGJoBWgGjA1tb3ZlQWxsU2hhcGVzlJOUhZRSlChoDyl9lCiMCmJhY2tncm91bmSUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAZzY2FsYXKUk5SMBW51bXB5lIwFZHR5cGWUk5SMAmY0lImIh5RSlChLA4wBPJROTk5K/////0r/////SwB0lGJDBAAAAACUhpRSlIwFdW50aWyUSv7///+MCWRpcmVjdGlvbpSMAXKUjAVjb2xvcpSMEmRpYWdvbmFsTXVsdGlDb2xvcpSMBm5TdGVwc5SMBnNoYXBlWJR1TnSUYmWMBnN0YXRlc5RdlCiML1tbMCwgMCwgOCwgOCwgOCwgOCwgOCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF1dlF2UXZQoSwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAEsAZWFdlF2UKEsASwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAGVhZXUu
+actions_jalend [functools.partial(<function deletePixels at 0x7fe6bc62f240>, diagonals=True), functools.partial(<function moveAllShapes at 0x7fe6bc62ee80>, background=0.0, until=-2, direction='r', color='diagonalMultiColor', nSteps='shapeX')]
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+statejalend gASVEwEAAAAAAAB9lCiMB2FjdGlvbnOUXZQojAlmdW5jdG9vbHOUjAdwYXJ0aWFslJOUjAVVdGlsc5SMCGRvd25zaXpllJOUhZRSlChoCCl9lIwIbmV3U2hhcGWUSwFLD4aUc050lGJoBWgGjAZtaXJyb3KUk5SFlFKUKGgQKX2UjARheGlzlIwCbHKUc050lGJljAZzdGF0ZXOUXZQojC9bWzAsIDAsIDgsIDgsIDgsIDgsIDgsIDAsIDAsIDAsIDAsIDAsIDAsIDAsIDBdXZRdlF2UKEsASwBLCEsISwhLCEsISwBLAEsASwBLAEsASwBLAGVhXZRdlChLAEsASwBLAEsASwBLAEsASwhLCEsISwhLCEsASwBlYWV1Lg==
+actions_jalend [functools.partial(<function downsize at 0x7fe6bc630040>, newShape=(1, 15)), functools.partial(<function mirror at 0x7fe6bc62f4c0>, axis='lr')]
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+statejalend gASVAgIAAAAAAAB9lCiMB2FjdGlvbnOUXZQojAlmdW5jdG9vbHOUjAdwYXJ0aWFslJOUjAVVdGlsc5SME2ZpbGxSZWN0YW5nbGVJbnNpZGWUk5SFlFKUKGgIKX2UKIwOcmVjdGFuZ2xlQ29sb3KUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAZzY2FsYXKUk5SMBW51bXB5lIwFZHR5cGWUk5SMAmY0lImIh5RSlChLA4wBPJROTk5K/////0r/////SwB0lGJDBAAAAACUhpRSlIwJZmlsbENvbG9ylGgPaBVDBAAAAEGUhpRSlHVOdJRiaAVoBowNbW92ZUFsbFNoYXBlc5STlIWUUpQoaCEpfZQojApiYWNrZ3JvdW5klGgPaBVDBAAAAACUhpRSlIwFdW50aWyUSv7///+MCWRpcmVjdGlvbpSMAXKUjAVjb2xvcpSMEmRpYWdvbmFsTXVsdGlDb2xvcpSMBm5TdGVwc5SMBnNoYXBlWJR1TnSUYmWMBnN0YXRlc5RdlCiML1tbMCwgMCwgOCwgOCwgOCwgOCwgOCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF1dlF2UXZQoSwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAEsAZWFdlF2UKEsASwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAGVhZXUu
+actions_jalend [functools.partial(<function fillRectangleInside at 0x7fe6bc62eca0>, rectangleColor=0.0, fillColor=8.0), functools.partial(<function moveAllShapes at 0x7fe6bc62ee80>, background=0.0, until=-2, direction='r', color='diagonalMultiColor', nSteps='shapeX')]
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+statejalend gASVAgIAAAAAAAB9lCiMB2FjdGlvbnOUXZQojAlmdW5jdG9vbHOUjAdwYXJ0aWFslJOUjAVVdGlsc5SME2ZpbGxSZWN0YW5nbGVJbnNpZGWUk5SFlFKUKGgIKX2UKIwOcmVjdGFuZ2xlQ29sb3KUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAZzY2FsYXKUk5SMBW51bXB5lIwFZHR5cGWUk5SMAmY0lImIh5RSlChLA4wBPJROTk5K/////0r/////SwB0lGJDBAAAAACUhpRSlIwJZmlsbENvbG9ylGgPaBVDBAAAAEGUhpRSlHVOdJRiaAVoBowNbW92ZUFsbFNoYXBlc5STlIWUUpQoaCEpfZQojApiYWNrZ3JvdW5klGgPaBVDBAAAAACUhpRSlIwFdW50aWyUSv7///+MCWRpcmVjdGlvbpSMAXKUjAVjb2xvcpSMEmRpYWdvbmFsTXVsdGlDb2xvcpSMBm5TdGVwc5SMBnNoYXBlWJR1TnSUYmWMBnN0YXRlc5RdlCiML1tbMCwgMCwgOCwgOCwgOCwgOCwgOCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF1dlF2UXZQoSwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAEsAZWFdlF2UKEsASwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAGVhZXUu
+actions_jalend [functools.partial(<function fillRectangleInside at 0x7fe6bc62eca0>, rectangleColor=0.0, fillColor=8.0), functools.partial(<function moveAllShapes at 0x7fe6bc62ee80>, background=0.0, until=-2, direction='r', color='diagonalMultiColor', nSteps='shapeX')]
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+statejalend gASVAgIAAAAAAAB9lCiMB2FjdGlvbnOUXZQojAlmdW5jdG9vbHOUjAdwYXJ0aWFslJOUjAVVdGlsc5SME2ZpbGxSZWN0YW5nbGVJbnNpZGWUk5SFlFKUKGgIKX2UKIwOcmVjdGFuZ2xlQ29sb3KUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAZzY2FsYXKUk5SMBW51bXB5lIwFZHR5cGWUk5SMAmY0lImIh5RSlChLA4wBPJROTk5K/////0r/////SwB0lGJDBAAAAACUhpRSlIwJZmlsbENvbG9ylGgPaBVDBAAAAEGUhpRSlHVOdJRiaAVoBowNbW92ZUFsbFNoYXBlc5STlIWUUpQoaCEpfZQojApiYWNrZ3JvdW5klGgPaBVDBAAAAACUhpRSlIwFdW50aWyUSv7///+MCWRpcmVjdGlvbpSMAXKUjAVjb2xvcpSMEmRpYWdvbmFsTXVsdGlDb2xvcpSMBm5TdGVwc5SMBnNoYXBlWJR1TnSUYmWMBnN0YXRlc5RdlCiML1tbMCwgMCwgOCwgOCwgOCwgOCwgOCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF1dlF2UXZQoSwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAEsAZWFdlF2UKEsASwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAGVhZXUu
+actions_jalend [functools.partial(<function fillRectangleInside at 0x7fe6bc62eca0>, rectangleColor=0.0, fillColor=8.0), functools.partial(<function moveAllShapes at 0x7fe6bc62ee80>, background=0.0, until=-2, direction='r', color='diagonalMultiColor', nSteps='shapeX')]
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+statejalend gASVzAEAAAAAAAB9lCiMB2FjdGlvbnOUXZQojAlmdW5jdG9vbHOUjAdwYXJ0aWFslJOUjAVVdGlsc5SMDGRlbGV0ZVBpeGVsc5STlIWUUpQoaAgpfZSMCWRpYWdvbmFsc5SIc050lGJoBWgGjA1tb3ZlQWxsU2hhcGVzlJOUhZRSlChoDyl9lCiMCmJhY2tncm91bmSUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAZzY2FsYXKUk5SMBW51bXB5lIwFZHR5cGWUk5SMAmY0lImIh5RSlChLA4wBPJROTk5K/////0r/////SwB0lGJDBAAAAACUhpRSlIwFdW50aWyUSv7///+MCWRpcmVjdGlvbpSMAXKUjAVjb2xvcpSMEmRpYWdvbmFsTXVsdGlDb2xvcpSMBm5TdGVwc5SMBnNoYXBlWJR1TnSUYmWMBnN0YXRlc5RdlCiML1tbMCwgMCwgOCwgOCwgOCwgOCwgOCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF1dlF2UXZQoSwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAEsAZWFdlF2UKEsASwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAGVhZXUu
+actions_jalend [functools.partial(<function deletePixels at 0x7fe6bc62f240>, diagonals=True), functools.partial(<function moveAllShapes at 0x7fe6bc62ee80>, background=0.0, until=-2, direction='r', color='diagonalMultiColor', nSteps='shapeX')]
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+statejalend gASVAgIAAAAAAAB9lCiMB2FjdGlvbnOUXZQojAlmdW5jdG9vbHOUjAdwYXJ0aWFslJOUjAVVdGlsc5SME2ZpbGxSZWN0YW5nbGVJbnNpZGWUk5SFlFKUKGgIKX2UKIwOcmVjdGFuZ2xlQ29sb3KUjBVudW1weS5jb3JlLm11bHRpYXJyYXmUjAZzY2FsYXKUk5SMBW51bXB5lIwFZHR5cGWUk5SMAmY0lImIh5RSlChLA4wBPJROTk5K/////0r/////SwB0lGJDBAAAAACUhpRSlIwJZmlsbENvbG9ylGgPaBVDBAAAAEGUhpRSlHVOdJRiaAVoBowNbW92ZUFsbFNoYXBlc5STlIWUUpQoaCEpfZQojApiYWNrZ3JvdW5klGgPaBVDBAAAAACUhpRSlIwFdW50aWyUSv7///+MCWRpcmVjdGlvbpSMAXKUjAVjb2xvcpSMEmRpYWdvbmFsTXVsdGlDb2xvcpSMBm5TdGVwc5SMBnNoYXBlWJR1TnSUYmWMBnN0YXRlc5RdlCiML1tbMCwgMCwgOCwgOCwgOCwgOCwgOCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF1dlF2UXZQoSwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAEsAZWFdlF2UKEsASwBLAEsISwhLCEsISwhLAEsASwBLAEsASwBLAGVhZXUu
+actions_jalend [functools.partial(<function fillRectangleInside at 0x7fe6bc62eca0>, rectangleColor=0.0, fillColor=8.0), functools.partial(<function moveAllShapes at 0x7fe6bc62ee80>, background=0.0, until=-2, direction='r', color='diagonalMultiColor', nSteps='shapeX')]
+len of actions 2
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+sample {'input': array([[0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32), 'output': array([[0., 0., 0., 8., 8., 8., 8., 8., 0., 0., 0., 0., 0., 0., 0.]],
+      dtype=float32)}
+Training loss 1.8642898921016604
+Epoch 0: 100%|██████████| 2/2 [03:57<00:00,  0.01it/s, v_num=141, train/loss_step=45.80]Epoch 0: 100%|██████████| 2/2 [03:57<00:00,  0.01it/s, v_num=141, train/loss_step=1.860]Epoch 0: 100%|██████████| 2/2 [03:57<00:00,  0.01it/s, v_num=141, train/loss_step=1.860, train/loss_epoch=23.80, train/logR=2.550]Epoch 0: 100%|██████████| 2/2 [03:57<00:00,  0.01it/s, v_num=141, train/loss_step=1.860, train/loss_epoch=23.80, train/logR=2.550]
+PEFT saved...

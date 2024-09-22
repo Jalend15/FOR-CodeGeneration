@@ -1,0 +1,13 @@
+tqdm
+OpenAI
+numpy
+transformers
+torch
+accelerate
+bitsandbytes
+pytorch-lightning
+openai
+nltk
+peft
+tarski
+torchdata

@@ -128,7 +128,8 @@ class BlocksWorldGFNTask(LightningModule):
             args.world_model, add_bos_token=False, padding_side="left"
         )
         self.world_tokenizer.pad_token = self.world_tokenizer.eos_token
-
+        
+        #no need to store transitions
         transition_path = f"/transitions/{args.step}/transition.pkl"  # TO CHANGE
 
         if os.path.exists(transition_path):
@@ -249,6 +250,7 @@ class BlocksWorldGFNTask(LightningModule):
         else:
             best_actions = None
             best_states = None
+            # larger reward than original ones
             best_reward = -9999
             for _ in range(self.n_samples):
                 if np.random.rand() < self.args.pf_temp_prob:
@@ -325,9 +327,12 @@ class BlocksWorldGFNTask(LightningModule):
                 if log_reward > best_reward:
                     LOG_R.append(torch.log(reward + ll_weight * ll_reward.sum()))
                     generated_text = {"actions": actions, "states": states}
+                    pickled_data = pickle.dumps(generated_text)
+                    encoded_data = base64.b64encode(pickled_data).decode('utf-8') 
+                    # prob of using replay buffer to 0, main training framework to run correctly.
                     self.replay_buffer.add(
                         GOAL + INIT,
-                        generated_text,
+                        encoded_data,
                         sample,
                         torch.log(reward + ll_weight * ll_reward.sum()),
                     )
@@ -402,24 +407,32 @@ class BlocksWorldGFNTask(LightningModule):
                 )
             )
 
+            # input and output grid states[-1] matches the target state
             goal_statement = f"{GOAL}"
-            goals = re.findall(
-                "the [a-z]{0,10} block is on top of the [a-z]{0,10} block",
-                goal_statement,
-            )  # TO CHANGE
-            meetings = [g in states[-1] for g in goals]
-            if sum(meetings) == len(meetings):
+            print("test_jalend", GOAL, states[-1])
+            if(GOAL == states[-1]):
                 total_success += 1
+                total_solution += 1
+            # goals = re.findall(
+            #     "the [a-z]{0,10} block is on top of the [a-z]{0,10} block",
+            #     goal_statement,
+            # )  # TO CHANGE
+            # meetings = [g in states[-1] for g in goals]
+            # if sum(meetings) == len(meetings):
+            #     total_success += 1
 
-                actions_joined = "\n".join(actions)
-                if (GOAL, INIT, actions_joined) not in success_text:
-                    total_solution += 1
-                    success_text.append((GOAL, INIT, actions_joined))
+            #     actions_joined = "\n".join(actions)
+            #     if (GOAL, INIT, actions_joined) not in success_text:
+            #         total_solution += 1
+            #         success_text.append((GOAL, INIT, actions_joined))
+            # input and output grid
 
         if total_success > 0:
             success = 1
         else:
             success = 0
+        print("success_jalend",success)
+        print(total_success)
 
         self.log(
             "test/success",
@@ -437,6 +450,7 @@ class BlocksWorldGFNTask(LightningModule):
         )
 
     def validation_step(self, problem, batch_idx):
+        print("Jalend:started validation")
         if self.args.use_lora:
             base_to_lora(self.model)  # 确保转换成lora
         self.model.eval()  # 必须用eval
@@ -462,21 +476,25 @@ class BlocksWorldGFNTask(LightningModule):
                     mode="test",
                 )
             )
-
+          # input and output grid states[-1] matches the target state
             goal_statement = f"{GOAL}"
-            goals = re.findall(
-                "the [a-z]{0,10} block is on top of the [a-z]{0,10} block",
-                goal_statement,
-            )  # TO CHANGE
-            meetings = [g in states[-1] for g in goals]
-
-            if sum(meetings) == len(meetings):
+            print("validation_jalend", GOAL, states[-1])
+            if(GOAL == states[-1]):
                 total_success += 1
-                actions_joined = "\n".join(actions)
-                if (GOAL, INIT, actions_joined) not in success_text:
-                    total_solution += 1
-                    success_text.append((GOAL, INIT, actions_joined))
+                total_solution += 1
+            # goals = re.findall(
+            #     "the [a-z]{0,10} block is on top of the [a-z]{0,10} block",
+            #     goal_statement,
+            # )  # TO CHANGE
+            # meetings = [g in states[-1] for g in goals]
 
+            # if sum(meetings) == len(meetings):
+            #     total_success += 1
+            #     actions_joined = "\n".join(actions)
+            #     if (GOAL, INIT, actions_joined) not in success_text:
+            #         total_solution += 1
+            #         success_text.append((GOAL, INIT, actions_joined))
+          # input and output grid states[-1] matches the target state
         if total_success > 0:
             success = 1
         else:
@@ -1137,14 +1155,45 @@ class BlocksWorldGFNTask(LightningModule):
             # # Make sure no log(0) happens by checking if idx is valid
             # log_pf.append(torch.log(probabilities[idx]))
             # print(f"traing loss probs: {probabilities}")
-
             def compare_partial_funcs(func1, func2):
-                """Compare two partial functions for equality by checking their function and args"""
-                return (
-                    func1.func == func2.func
-                    and func1.args == func2.args
-                    and func1.keywords == func2.keywords
-                )
+                """Compare two partial functions for equality by checking their function, args, and keywords."""
+                
+                # Compare the function objects
+                if func1.func != func2.func:
+                    return False
+                
+                # Compare the arguments
+                if len(func1.args) != len(func2.args):
+                    return False
+                
+                for arg1, arg2 in zip(func1.args, func2.args):
+                    if isinstance(arg1, np.ndarray) and isinstance(arg2, np.ndarray):
+                        # Compare numpy arrays using array_equal
+                        if not np.array_equal(arg1, arg2):
+                            return False
+                    else:
+                        # Compare other arguments directly
+                        if arg1 != arg2:
+                            return False
+                
+                # Compare the keywords
+                if func1.keywords.keys() != func2.keywords.keys():
+                    return False
+                
+                for key in func1.keywords:
+                    kwarg1 = func1.keywords[key]
+                    kwarg2 = func2.keywords[key]
+                    
+                    if isinstance(kwarg1, np.ndarray) and isinstance(kwarg2, np.ndarray):
+                        # Compare numpy arrays in the keyword arguments
+                        if not np.array_equal(kwarg1, kwarg2):
+                            return False
+                    else:
+                        # Compare other keyword arguments directly
+                        if kwarg1 != kwarg2:
+                            return False
+                
+                return True
 
             from functools import partial
 

@@ -15,7 +15,7 @@ import pickle
 from lightning_module_selection import *
 
 from lightning_data import *
-
+import os
 
 warnings.filterwarnings("ignore")
 
@@ -65,10 +65,15 @@ def blocksworld_planning(model, tokenizer, device, args, model_back=None):
         )
 
     trainer.fit(model=task, datamodule=data)
-    transition_path = f"/transitions/{args.step}/transition.pkl"
+    transition_path = f"./transitions/{args.step}/transition.pkl"
+    # Ensure the directory exists before writing the file
+    os.makedirs(os.path.dirname(transition_path), exist_ok=True)
+
     with open(transition_path, "wb") as f:
         pickle.dump(task.transitions, f)
 
-    model.save("./ckpt/6-step")
+    model.save_pretrained("./ckpt/6-step")
     print("PEFT saved...")
+    print("Testing started")
     trainer.test(ckpt_path="last", dataloaders=data.test_dataloader())
+    print("Testing ended")

@@ -1,0 +1,405 @@
+(base) jalend@sn4622116169:~/FOR-CodeGeneration/1D-ARC$ conda activate cg
+(cg) jalend@sn4622116169:~/FOR-CodeGeneration/1D-ARC$ export OPENAI_API_KEY=""
+(cg) jalend@sn4622116169:~/FOR-CodeGeneration/1D-ARC$ nvidia-smi
+Fri Sep 20 22:11:54 2024
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.183.06             Driver Version: 535.183.06   CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA A100 80GB PCIe          On  | 00000000:01:00.0 Off |                    0 |
+| N/A   35C    P0              75W / 300W |  76397MiB / 81920MiB |      1%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   1  NVIDIA A100 80GB PCIe          On  | 00000000:23:00.0 Off |                    0 |
+| N/A   35C    P0              73W / 300W |   6779MiB / 81920MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   2  NVIDIA A100 80GB PCIe          On  | 00000000:41:00.0 Off |                    0 |
+| N/A   43C    P0              82W / 300W |  63793MiB / 81920MiB |      5%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   3  NVIDIA A100 80GB PCIe          On  | 00000000:61:00.0 Off |                    0 |
+| N/A   42C    P0             177W / 300W |  36969MiB / 81920MiB |     26%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   4  NVIDIA A100 80GB PCIe          On  | 00000000:81:00.0 Off |                    0 |
+| N/A   48C    P0             129W / 300W |  34634MiB / 81920MiB |     33%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   5  NVIDIA A100 80GB PCIe          On  | 00000000:A1:00.0 Off |                    0 |
+| N/A   38C    P0              74W / 300W |  33522MiB / 81920MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   6  NVIDIA A100 80GB PCIe          On  | 00000000:C1:00.0 Off |                    0 |
+| N/A   65C    P0             260W / 300W |  62651MiB / 81920MiB |     87%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+|   7  NVIDIA A100 80GB PCIe          On  | 00000000:E1:00.0 Off |                    0 |
+| N/A   37C    P0              75W / 300W |   1829MiB / 81920MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
+|    0   N/A  N/A    942709      C   python                                    73098MiB |
+|    0   N/A  N/A   3831119      C   .../miniconda3/envs/concept/bin/python     3282MiB |
+|    1   N/A  N/A   3596136      G   /usr/lib/xorg/Xorg                            4MiB |
+|    1   N/A  N/A   3602570      G   /usr/lib/xorg/Xorg                            4MiB |
+|    1   N/A  N/A   3745779      C   python                                     6746MiB |
+|    2   N/A  N/A    474584      C   python3                                   35776MiB |
+|    2   N/A  N/A   1717627      C   python                                     6938MiB |
+|    2   N/A  N/A   3222101      C   python                                     6706MiB |
+|    2   N/A  N/A   3371035      C   python                                     7156MiB |
+|    2   N/A  N/A   3596136      G   /usr/lib/xorg/Xorg                            4MiB |
+|    2   N/A  N/A   3602570      G   /usr/lib/xorg/Xorg                            4MiB |
+|    2   N/A  N/A   3653567      C   python                                     7156MiB |
+|    3   N/A  N/A   3596136      G   /usr/lib/xorg/Xorg                            4MiB |
+|    3   N/A  N/A   3602570      G   /usr/lib/xorg/Xorg                            4MiB |
+|    3   N/A  N/A   4074120      C   python3                                   36938MiB |
+|    4   N/A  N/A    500549      C   python3                                   34582MiB |
+|    4   N/A  N/A   3596136      G   /usr/lib/xorg/Xorg                           22MiB |
+|    4   N/A  N/A   3602570      G   /usr/lib/xorg/Xorg                            4MiB |
+|    5   N/A  N/A   3596136      G   /usr/lib/xorg/Xorg                            4MiB |
+|    5   N/A  N/A   3602570      G   /usr/lib/xorg/Xorg                           22MiB |
+|    5   N/A  N/A   4073383      C   python                                    33472MiB |
+|    6   N/A  N/A    175235      C   python                                    20870MiB |
+|    6   N/A  N/A    192617      C   python                                    20870MiB |
+|    6   N/A  N/A    210351      C   python                                    20870MiB |
+|    6   N/A  N/A   3596136      G   /usr/lib/xorg/Xorg                            4MiB |
+|    6   N/A  N/A   3602570      G   /usr/lib/xorg/Xorg                            4MiB |
+|    7   N/A  N/A   2162510      C   ...forge3/envs/semantic-sam/bin/python     1758MiB |
+|    7   N/A  N/A   3596136      G   /usr/lib/xorg/Xorg                            4MiB |
+|    7   N/A  N/A   3602570      G   /usr/lib/xorg/Xorg                            4MiB |
++---------------------------------------------------------------------------------------+
+(cg) jalend@sn4622116169:~/FOR-CodeGeneration/1D-ARC$ CUDA_VISIBLE_DEVICES=1 python main.py     --step 2     --n_samp
+les 1    --epochs 1     --ll-weight 1.5     --pretrained_model "meta-llama/Meta-Llama-3-8B"     --reward_temp_end 2
+   --pf_temp_start 4     --p_buffer_start 0.25     --epsilon_start 0.3     --world_model "meta-llama/Meta-Llama-3-8B"
+     --mode "train" > "./logs/step_${step}/output.txt"
+
+/home/jalend/anaconda3/envs/cg/lib/python3.12/site-packages/transformers/utils/hub.py:124: FutureWarning: Using `TRAN
+SFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+[2024-09-20 22:12:43,176][main.py][line:114][INFO] start training on GPU 1!
+[2024-09-20 22:12:43,176][main.py][line:115][INFO] Namespace(seed=321, no_cuda=False, pretrained_model='meta-llama/Me
+ta-Llama-3-8B', world_model='meta-llama/Meta-Llama-3-8B', wandb=False, topk=20, fp16=False, step=2, input_file='./dat
+a/lexical/commongen_data/test.multi.constraint.json', load_checkpoint_path=None, test_only=False, epochs=1, use_4bit=
+True, use_lora=True, accumulate_grad_batches=4, buffer_size=50, use_buffer_prob=0.5, n_samples=1, ll_weight=1.5, task
+='blocksworld', PG=False, batch_size=1, logZ_init=5, reward_temp_start=1.0, reward_temp_end=2.0, epsilon_start=0.3, e
+psilon_end=0.01, pf_temp_start=4.0, pf_temp_end=1.0, pf_temp_prob=0.5, p_buffer_start=0.25, p_buffer_end=0.5, lr=0.00
+01, logZ_lr=1e-05, num_iters=10000, mode='train')
+Loading checkpoint shards: 100%|████████████████████████████████████| 4/4 [00:23<00:00,  5.96s/it]
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+[2024-09-20 22:13:19,236][utils.py][line:145][INFO] Note: detected 255 virtual cores but NumExpr set to maximum of 64
+, check "NUMEXPR_MAX_THREADS" environment variable.
+[2024-09-20 22:13:19,236][utils.py][line:148][INFO] Note: NumExpr detected 255 cores but "NUMEXPR_MAX_THREADS" not se
+t, so enforcing safe limit of 8.
+[2024-09-20 22:13:19,236][utils.py][line:160][INFO] NumExpr defaulting to 8 threads.
+[2024-09-20 22:13:19,388][config.py][line:58][INFO] PyTorch version 2.4.1 available.
+[2024-09-20 22:13:19,589][rank_zero.py][line:63][INFO] GPU available: True (cuda), used: True
+[2024-09-20 22:13:19,589][rank_zero.py][line:63][INFO] TPU available: False, using: 0 TPU cores
+[2024-09-20 22:13:19,589][rank_zero.py][line:63][INFO] HPU available: False, using: 0 HPUs
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+[2024-09-20 22:13:20,291][cuda.py][line:61][INFO] LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [1]
+[2024-09-20 22:13:20,361][model_summary.py][line:104][INFO]
+  | Name         | Type                 | Params | Mode
+--------------------------------------------------------------
+0 | model        | PeftModelForCausalLM | 4.6 B  | train
+  | other params | n/a                  | 1      | n/a
+--------------------------------------------------------------
+56.6 M    Trainable params
+4.5 B     Non-trainable params
+4.6 B     Total params
+18,388.894Total estimated model params size (MB)
+2056      Modules in train mode
+0         Modules in eval mode
+`use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+[2024-09-20 23:14:30,720][rank_zero.py][line:63][INFO] `Trainer.fit` stopped: `max_epochs=1` reached.
+[2024-09-20 23:14:34,560][profiler.py][line:76][INFO] FIT Profiler Report
+
+---------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------
+|  Action                                                               |  Mean duration (s)    |  Num calls
+     |  Total time (s)       |  Percentage %         |
+---------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------
+|  Total                                                                |  -                    |  176
+     |  3675.0               |  100 %                |
+---------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------
+|  run_training_epoch                                                   |  3670.3               |  1
+     |  3670.3               |  99.873               |
+|  run_training_batch                                                   |  611.62               |  6
+     |  3669.7               |  99.858               |
+|  [Strategy]SingleDeviceStrategy.training_step                         |  585.78               |  6
+     |  3514.7               |  95.639               |
+|  [LightningModule]BlocksWorldGFNTask.optimizer_step                   |  145.14               |  2
+     |  290.29               |  7.8991               |
+|  [Strategy]SingleDeviceStrategy.backward                              |  25.714               |  6
+     |  154.29               |  4.1983               |
+|  [Callback]TQDMProgressBar.on_train_batch_end                         |  0.09291              |  6
+     |  0.55746              |  0.015169             |
+|  [LightningDataModule]PromptDataModule.setup                          |  0.27167              |  1
+     |  0.27167              |  0.0073926            |
+|  [Callback]ModelSummary.on_fit_start                                  |  0.022572             |  1
+     |  0.022572             |  0.0006142            |
+|  [LightningModule]BlocksWorldGFNTask.on_train_epoch_start             |  0.012686             |  1
+     |  0.012686             |  0.00034521           |
+|  [Callback]TQDMProgressBar.on_train_epoch_end                         |  0.0053698            |  1
+     |  0.0053698            |  0.00014612           |
+|  [LightningModule]BlocksWorldGFNTask.configure_optimizers             |  0.004382             |  1
+     |  0.004382             |  0.00011924           |
+|  [LightningModule]BlocksWorldGFNTask.optimizer_zero_grad              |  0.0016588            |  2
+     |  0.0033177            |  9.0277e-05           |
+|  [_TrainingEpochLoop].train_dataloader_next                           |  0.00046551           |  6
+     |  0.0027931            |  7.6002e-05           |
+|  [Callback]TQDMProgressBar.on_train_start                             |  0.00060745           |  1
+     |  0.00060745           |  1.6529e-05           |
+|  [Strategy]SingleDeviceStrategy.batch_to_device                       |  9.5349e-05           |  6
+     |  0.00057209           |  1.5567e-05           |
+|  [LightningDataModule]PromptDataModule.train_dataloader               |  0.00044715           |  1
+     |  0.00044715           |  1.2167e-05           |
+|  [Callback]TQDMProgressBar.on_train_end                               |  0.00037807           |  1
+     |  0.00037807           |  1.0288e-05           |
+|  [LightningModule]BlocksWorldGFNTask.configure_gradient_clipping      |  0.00012474           |  2
+     |  0.00024948           |  6.7887e-06           |
+|  [LightningModule]BlocksWorldGFNTask.transfer_batch_to_device         |  3.6752e-05           |  6
+     |  0.00022051           |  6.0003e-06           |
+|  [Callback]TQDMProgressBar.on_train_epoch_start                       |  0.00015296           |  1
+     |  0.00015296           |  4.1622e-06           |
+|  [Callback]TQDMProgressBar.on_after_backward                          |  1.1367e-05           |  6
+     |  6.82e-05             |  1.8558e-06           |
+|  [Callback]ModelSummary.on_train_batch_end                            |  5.7569e-06           |  6
+     |  3.4541e-05           |  9.399e-07            |
+|  [LightningModule]BlocksWorldGFNTask.on_after_backward                |  3.76e-06             |  6
+     |  2.256e-05            |  6.1389e-07           |
+|  [Callback]TQDMProgressBar.on_before_backward                         |  3.7566e-06           |  6
+     |  2.254e-05            |  6.1333e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_train_batch_start             |  3.655e-06            |  6
+     |  2.193e-05            |  5.9674e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_train_batch_end               |  3.5116e-06           |  6
+     |  2.107e-05            |  5.7333e-07           |
+|  [Callback]TQDMProgressBar.on_before_zero_grad                        |  6.22e-06             |  2
+     |  1.244e-05            |  3.385e-07            |
+|  [Strategy]SingleDeviceStrategy.on_train_batch_start                  |  1.93e-06             |  6
+     |  1.158e-05            |  3.151e-07            |
+|  [Callback]TQDMProgressBar.on_train_batch_start                       |  1.75e-06             |  6
+     |  1.05e-05             |  2.8572e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_before_backward               |  1.365e-06            |  6
+     |  8.1898e-06           |  2.2285e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_before_batch_transfer         |  1.2634e-06           |  6
+     |  7.5803e-06           |  2.0627e-07           |
+|  [Callback]TQDMProgressBar.setup                                      |  7.4001e-06           |  1
+     |  7.4001e-06           |  2.0136e-07           |
+|  [Callback]ModelSummary.on_after_backward                             |  1.2016e-06           |  6
+     |  7.2098e-06           |  1.9619e-07           |
+|  [Callback]ModelSummary.on_before_backward                            |  1.0217e-06           |  6
+     |  6.13e-06             |  1.668e-07            |
+|  [Callback]ModelSummary.on_train_batch_start                          |  9.884e-07            |  6
+     |  5.9304e-06           |  1.6137e-07           |
+|  [Callback]ModelSummary.on_train_end                                  |  4.79e-06             |  1
+     |  4.79e-06             |  1.3034e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_train_end                     |  4.6201e-06           |  1
+     |  4.6201e-06           |  1.2572e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_after_batch_transfer          |  7.5162e-07           |  6
+     |  4.5097e-06           |  1.2271e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_train_epoch_end               |  4.37e-06             |  1
+     |  4.37e-06             |  1.1891e-07           |
+|  [Callback]ModelSummary.on_train_epoch_end                            |  4.18e-06             |  1
+     |  4.18e-06             |  1.1374e-07           |
+|  [Callback]TQDMProgressBar.on_before_optimizer_step                   |  1.6e-06              |  2
+     |  3.2e-06              |  8.7076e-08           |
+|  [Strategy]SingleDeviceStrategy.on_train_end                          |  3.01e-06             |  1
+     |  3.01e-06             |  8.1906e-08           |
+|  [Callback]TQDMProgressBar.on_fit_end                                 |  3e-06                |  1
+     |  3e-06                |  8.1634e-08           |
+|  [LightningModule]BlocksWorldGFNTask.on_before_zero_grad              |  1.2701e-06           |  2
+     |  2.5402e-06           |  6.9121e-08           |
+|  [Callback]TQDMProgressBar.on_fit_start                               |  2.4901e-06           |  1
+     |  2.4901e-06           |  6.7759e-08           |
+|  [Callback]ModelSummary.on_before_optimizer_step                      |  1.115e-06            |  2
+     |  2.2301e-06           |  6.0682e-08           |
+|  [LightningModule]BlocksWorldGFNTask.configure_callbacks              |  2.1299e-06           |  1
+     |  2.1299e-06           |  5.7958e-08           |
+|  [Callback]ModelSummary.on_train_epoch_start                          |  2.0799e-06           |  1
+     |  2.0799e-06           |  5.6596e-08           |
+|  [Callback]ModelSummary.setup                                         |  1.97e-06             |  1
+     |  1.97e-06             |  5.3605e-08           |
+|  [Callback]ModelSummary.on_before_zero_grad                           |  9.7509e-07           |  2
+     |  1.9502e-06           |  5.3067e-08           |
+|  [Callback]ModelSummary.on_train_start                                |  1.8801e-06           |  1
+     |  1.8801e-06           |  5.116e-08            |
+|  [LightningModule]BlocksWorldGFNTask.on_before_optimizer_step         |  8.5006e-07           |  2
+     |  1.7001e-06           |  4.6262e-08           |
+|  [Callback]TQDMProgressBar.teardown                                   |  1.55e-06             |  1
+     |  1.55e-06             |  4.2176e-08           |
+|  [LightningDataModule]PromptDataModule.teardown                       |  1.5402e-06           |  1
+     |  1.5402e-06           |  4.191e-08            |
+|  [LightningModule]BlocksWorldGFNTask.setup                            |  1.4801e-06           |  1
+     |  1.4801e-06           |  4.0275e-08           |
+|  [LightningModule]BlocksWorldGFNTask.on_fit_start                     |  1.36e-06             |  1
+     |  1.36e-06             |  3.7006e-08           |
+|  [LightningModule]BlocksWorldGFNTask.on_fit_end                       |  1.2598e-06           |  1
+     |  1.2598e-06           |  3.4282e-08           |
+|  [LightningModule]BlocksWorldGFNTask.on_train_start                   |  1.2501e-06           |  1
+     |  1.2501e-06           |  3.4016e-08           |
+|  [Callback]ModelSummary.on_fit_end                                    |  9.3994e-07           |  1
+     |  9.3994e-07           |  2.5577e-08           |
+|  [Callback]ModelSummary.teardown                                      |  9.3994e-07           |  1
+     |  9.3994e-07           |  2.5577e-08           |
+|  [Strategy]SingleDeviceStrategy.on_train_start                        |  9.1013e-07           |  1
+     |  9.1013e-07           |  2.4766e-08           |
+|  [LightningModule]BlocksWorldGFNTask.teardown                         |  8.6986e-07           |  1
+     |  8.6986e-07           |  2.367e-08            |
+---------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------
+
+[2024-09-20 23:14:35,433][cuda.py][line:61][INFO] LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [1]
+[2024-09-20 23:14:41,478][profiler.py][line:76][INFO] TEST Profiler Report
+
+---------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------
+|  Action                                                               |  Mean duration (s)    |  Num calls
+     |  Total time (s)       |  Percentage %         |
+---------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------
+|  Total                                                                |  -                    |  185
+     |  3681.9               |  100 %                |
+---------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------
+|  run_training_epoch                                                   |  3670.3               |  1
+     |  3670.3               |  99.685               |
+|  run_training_batch                                                   |  611.62               |  6
+     |  3669.7               |  99.67                |
+|  [Strategy]SingleDeviceStrategy.training_step                         |  585.78               |  6
+     |  3514.7               |  95.459               |
+|  [LightningModule]BlocksWorldGFNTask.optimizer_step                   |  145.14               |  2
+     |  290.29               |  7.8843               |
+|  [Strategy]SingleDeviceStrategy.backward                              |  25.714               |  6
+     |  154.29               |  4.1904               |
+|  [LightningDataModule]PromptDataModule.setup                          |  0.29379              |  2
+     |  0.58758              |  0.015959             |
+|  [Callback]TQDMProgressBar.on_train_batch_end                         |  0.09291              |  6
+     |  0.55746              |  0.015141             |
+|  [Callback]ModelSummary.on_fit_start                                  |  0.022572             |  1
+     |  0.022572             |  0.00061304           |
+|  [LightningModule]BlocksWorldGFNTask.on_train_epoch_start             |  0.012686             |  1
+     |  0.012686             |  0.00034456           |
+|  [Callback]TQDMProgressBar.on_train_epoch_end                         |  0.0053698            |  1
+     |  0.0053698            |  0.00014584           |
+|  [LightningModule]BlocksWorldGFNTask.configure_optimizers             |  0.004382             |  1
+     |  0.004382             |  0.00011901           |
+|  [LightningModule]BlocksWorldGFNTask.optimizer_zero_grad              |  0.0016588            |  2
+     |  0.0033177            |  9.0108e-05           |
+|  [_TrainingEpochLoop].train_dataloader_next                           |  0.00046551           |  6
+     |  0.0027931            |  7.586e-05            |
+|  [Callback]TQDMProgressBar.on_train_start                             |  0.00060745           |  1
+     |  0.00060745           |  1.6498e-05           |
+|  [Strategy]SingleDeviceStrategy.batch_to_device                       |  9.5349e-05           |  6
+     |  0.00057209           |  1.5538e-05           |
+|  [LightningDataModule]PromptDataModule.train_dataloader               |  0.00044715           |  1
+     |  0.00044715           |  1.2145e-05           |
+|  [Callback]TQDMProgressBar.on_train_end                               |  0.00037807           |  1
+     |  0.00037807           |  1.0268e-05           |
+|  [LightningModule]BlocksWorldGFNTask.configure_gradient_clipping      |  0.00012474           |  2
+     |  0.00024948           |  6.7759e-06           |
+|  [LightningModule]BlocksWorldGFNTask.transfer_batch_to_device         |  3.6752e-05           |  6
+     |  0.00022051           |  5.9891e-06           |
+|  [Callback]TQDMProgressBar.on_train_epoch_start                       |  0.00015296           |  1
+     |  0.00015296           |  4.1544e-06           |
+|  [Callback]TQDMProgressBar.on_after_backward                          |  1.1367e-05           |  6
+     |  6.82e-05             |  1.8523e-06           |
+|  [Callback]ModelSummary.on_train_batch_end                            |  5.7569e-06           |  6
+     |  3.4541e-05           |  9.3814e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_after_backward                |  3.76e-06             |  6
+     |  2.256e-05            |  6.1273e-07           |
+|  [Callback]TQDMProgressBar.on_before_backward                         |  3.7566e-06           |  6
+     |  2.254e-05            |  6.1218e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_train_batch_start             |  3.655e-06            |  6
+     |  2.193e-05            |  5.9562e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_train_batch_end               |  3.5116e-06           |  6
+     |  2.107e-05            |  5.7225e-07           |
+|  [Callback]TQDMProgressBar.setup                                      |  8.785e-06            |  2
+     |  1.757e-05            |  4.772e-07            |
+|  [Callback]TQDMProgressBar.on_before_zero_grad                        |  6.22e-06             |  2
+     |  1.244e-05            |  3.3787e-07           |
+|  [Strategy]SingleDeviceStrategy.on_train_batch_start                  |  1.93e-06             |  6
+     |  1.158e-05            |  3.1451e-07           |
+|  [Callback]TQDMProgressBar.on_train_batch_start                       |  1.75e-06             |  6
+     |  1.05e-05             |  2.8519e-07           |
+|  [LightningDataModule]PromptDataModule.teardown                       |  4.9501e-06           |  2
+     |  9.9002e-06           |  2.6889e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_before_backward               |  1.365e-06            |  6
+     |  8.1898e-06           |  2.2244e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_before_batch_transfer         |  1.2634e-06           |  6
+     |  7.5803e-06           |  2.0588e-07           |
+|  [Callback]ModelSummary.on_after_backward                             |  1.2016e-06           |  6
+     |  7.2098e-06           |  1.9582e-07           |
+|  [Callback]ModelSummary.on_before_backward                            |  1.0217e-06           |  6
+     |  6.13e-06             |  1.6649e-07           |
+|  [Callback]TQDMProgressBar.teardown                                   |  3.0049e-06           |  2
+     |  6.0098e-06           |  1.6323e-07           |
+|  [Callback]ModelSummary.on_train_batch_start                          |  9.884e-07            |  6
+     |  5.9304e-06           |  1.6107e-07           |
+|  [Callback]ModelSummary.on_train_end                                  |  4.79e-06             |  1
+     |  4.79e-06             |  1.301e-07            |
+|  [LightningModule]BlocksWorldGFNTask.on_train_end                     |  4.6201e-06           |  1
+     |  4.6201e-06           |  1.2548e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_after_batch_transfer          |  7.5162e-07           |  6
+     |  4.5097e-06           |  1.2248e-07           |
+|  [LightningModule]BlocksWorldGFNTask.on_train_epoch_end               |  4.37e-06             |  1
+     |  4.37e-06             |  1.1869e-07           |
+|  [LightningModule]BlocksWorldGFNTask.configure_callbacks              |  2.16e-06             |  2
+     |  4.3199e-06           |  1.1733e-07           |
+|  [Callback]ModelSummary.on_train_epoch_end                            |  4.18e-06             |  1
+     |  4.18e-06             |  1.1353e-07           |
+|  [Callback]ModelSummary.setup                                         |  2.0199e-06           |  2
+     |  4.0398e-06           |  1.0972e-07           |
+|  [Callback]TQDMProgressBar.on_before_optimizer_step                   |  1.6e-06              |  2
+     |  3.2e-06              |  8.6913e-08           |
+|  [LightningModule]BlocksWorldGFNTask.setup                            |  1.5401e-06           |  2
+     |  3.0801e-06           |  8.3656e-08           |
+|  [Strategy]SingleDeviceStrategy.on_train_end                          |  3.01e-06             |  1
+     |  3.01e-06             |  8.1752e-08           |
+|  [Callback]TQDMProgressBar.on_fit_end                                 |  3e-06                |  1
+     |  3e-06                |  8.1481e-08           |
+|  [LightningModule]BlocksWorldGFNTask.on_before_zero_grad              |  1.2701e-06           |  2
+     |  2.5402e-06           |  6.8991e-08           |
+|  [Callback]TQDMProgressBar.on_fit_start                               |  2.4901e-06           |  1
+     |  2.4901e-06           |  6.7632e-08           |
+|  [Callback]ModelSummary.on_before_optimizer_step                      |  1.115e-06            |  2
+     |  2.2301e-06           |  6.0568e-08           |
+|  [Callback]ModelSummary.on_train_epoch_start                          |  2.0799e-06           |  1
+     |  2.0799e-06           |  5.6489e-08           |
+|  [Callback]ModelSummary.teardown                                      |  1.025e-06            |  2
+     |  2.0501e-06           |  5.568e-08            |
+|  [Callback]ModelSummary.on_before_zero_grad                           |  9.7509e-07           |  2
+     |  1.9502e-06           |  5.2967e-08           |
+|  [Callback]ModelSummary.on_train_start                                |  1.8801e-06           |  1
+     |  1.8801e-06           |  5.1064e-08           |
+|  [LightningModule]BlocksWorldGFNTask.teardown                         |  9.0501e-07           |  2
+     |  1.81e-06             |  4.916e-08            |
+|  [LightningModule]BlocksWorldGFNTask.on_before_optimizer_step         |  8.5006e-07           |  2
+     |  1.7001e-06           |  4.6175e-08           |
+|  [LightningModule]BlocksWorldGFNTask.on_fit_start                     |  1.36e-06             |  1
+     |  1.36e-06             |  3.6937e-08           |
+|  [LightningModule]BlocksWorldGFNTask.on_fit_end                       |  1.2598e-06           |  1
+     |  1.2598e-06           |  3.4217e-08           |
+|  [LightningModule]BlocksWorldGFNTask.on_train_start                   |  1.2501e-06           |  1
+     |  1.2501e-06           |  3.3952e-08           |
+|  [Callback]ModelSummary.on_fit_end                                    |  9.3994e-07           |  1
+     |  9.3994e-07           |  2.5529e-08           |
+|  [Strategy]SingleDeviceStrategy.on_train_start                        |  9.1013e-07           |  1
+     |  9.1013e-07           |  2.4719e-08           |
+---------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------
+
+(cg) jalend@sn4622116169:~/FOR-CodeGeneration/1D-ARC$ tmux capture-pane -pS -10000 > ./last-10000-lines.out
+
+
+

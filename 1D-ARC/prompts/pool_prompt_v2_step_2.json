@@ -1,83 +1,35 @@
 {
     "example_pool": [
         {
-            "init": "the red block is clear, the blue block is clear, the hand is empty, the blue block is on top of the orange block, the red block is on the table and the orange block is on the table",
-            "goal": "the red block is on top of the blue block and the blue block is on top of the orange block",
-            "plan": "\npick up the red block\nstack the red block on top of the blue block\n[PLAN END]\n",
+            "init": "array([[0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 8, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0]])",
+            "goal": "array([[0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 8, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0]])",
+            "plan": "functools.partial(<function downsize at 0x7fa7cadf7c40>, newShape=(1, 33))",
             "states": [
-                "the red block is clear, the hand is empty, the red block is on top of the blue block, the blue block is on top of the orange block and the orange block is on the table"
+                "array([[0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 8, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0]])"
             ]
         },
         {
-            "init": "the red block is clear, the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the blue block is on the table, the orange block is on the table and the yellow block is on the table",
-            "goal": "the orange block is on top of the red block",
-            "plan": "\npick up the orange block\nstack the orange block on top of the red block\n[PLAN END]\n",
+            "init": "array([[0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 8, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0]])",
+            "goal": "array([[0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 8, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0]])",
+            "plan": "assert functools.partial(<function downsizeMode at 0x7fa7cadf9a80>, newShape=(1, 33))",
             "states": [
-                "the orange block is clear, the yellow block is clear, the hand is empty, the red block is on top of the blue block, the orange block is on top of the red block, the blue block is on the table and the yellow block is on the table"
+                "array([[0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 8, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0]])"
             ]
         },
         {
-            "init": "the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the orange block is on top of the red block, the red block is on the table and the yellow block is on the table",
-            "goal": "the blue block is on top of the yellow block and the orange block is on top of the red block",
-            "plan": "\nunstack the blue block from on top of the orange block\nstack the blue block on top of the yellow block\n[PLAN END]\n",
+            "init": "array([[0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 8, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0]])",
+            "goal": "array([[0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 8, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0]])",
+            "plan": "functools.partial(<function countColors at 0x7fa7cadf9620>, rotate=-1, outBackgroundColor=-1, flip=True, sliced=False, ignore='max', outShape='inShape', byShape=True)",
             "states": [
-                "the blue block is clear, the orange block is clear, the hand is empty, the blue block is on top of the yellow block, the orange block is on top of the red block, the red block is on the table and the yellow block is on the table"
+                "array([[0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 8, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0]])"
             ]
         },
         {
-            "init": "the red block is clear, the blue block is clear, the hand is empty, the red block is on top of the orange block, the blue block is on the table and the orange block is on the table",
-            "goal": "the blue block is on top of the red block",
-            "plan": "\npick up the blue block\nstack the blue block on top of the red block\n[PLAN END]\n",
+            "init": "array([[0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 8, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0]])",
+            "goal": "array([[0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])",
+            "plan": "functools.partial(<function countShapes at 0x7fa7cadf9760>, color=-1, outShape='inShape', lay='h', outColor=None, shape=None, skip=True)",
             "states": [
-                "the blue block is clear, the hand is empty, the red block is on top of the orange block, the blue block is on top of the red block and the orange block is on the table"
-            ]
-        },
-        {
-            "init": "the red block is clear, the blue block is clear, the hand is empty, the red block is on top of the orange block, the blue block is on the table and the orange block is on the table",
-            "goal": "the red block is on top of the blue block",
-            "plan": "\nunstack the red block from on top of the orange block\nstack the red block on top of the blue block\n[PLAN END]\n",
-            "states": [
-                "the red block is clear, the orange block is clear, the hand is empty, the red block is on top of the blue block, the blue block is on the table and the orange block is on the table"
-            ]
-        },
-        {
-            "init": "the blue block is clear, the yellow block is clear, the hand is empty, the red block is on top of the orange block, the blue block is on top of the red block, the orange block is on the table and the yellow block is on the table",
-            "goal": "the red block is on top of the orange block and the yellow block is on top of the blue block",
-            "plan": "\npick up the yellow block\nstack the yellow block on top of the blue block\n[PLAN END]\n",
-            "states": [
-                "the yellow block is clear, the hand is empty, the red block is on top of the orange block, the blue block is on top of the red block, the yellow block is on top of the blue block and the orange block is on the table"
-            ]
-        },
-        {
-            "init": "the red block is clear, the orange block is clear, the hand is empty, the red block is on top of the blue block, the blue block is on the table and the orange block is on the table",
-            "goal": "the orange block is on top of the red block",
-            "plan": "\npick up the orange block\nstack the orange block on top of the red block\n[PLAN END]\n",
-            "states": [
-                "the orange block is clear, the hand is empty, the red block is on top of the blue block, the orange block is on top of the red block and the blue block is on the table"
-            ]
-        },
-        {
-            "init": "the red block is clear, the blue block is clear, the orange block is clear, the hand is empty, the red block is on the table, the blue block is on the table and the orange block is on the table",
-            "goal": "the red block is on top of the orange block",
-            "plan": "\npick up the red block\nstack the red block on top of the orange block\n[PLAN END]\n",
-            "states": [
-                "the red block is clear, the blue block is clear, the hand is empty, the red block is on top of the orange block, the blue block is on the table and the orange block is on the table"
-            ]
-        },
-        {
-            "init": "the blue block is clear, the orange block is clear, the yellow block is clear, the hand is empty, the yellow block is on top of the red block, the red block is on the table, the blue block is on the table and the orange block is on the table",
-            "goal": "the blue block is on top of the orange block and the yellow block is on top of the red block",
-            "plan": "\npick up the blue block\nstack the blue block on top of the orange block\n[PLAN END]\n",
-            "states": [
-                "the blue block is clear, the yellow block is clear, the hand is empty, the blue block is on top of the orange block, the yellow block is on top of the red block, the red block is on the table and the orange block is on the table"
-            ]
-        },
-        {
-            "init": "the red block is clear, the blue block is clear, the hand is empty, the blue block is on top of the yellow block, the yellow block is on top of the white block, the white block is on top of the orange block, the red block is on the table and the orange block is on the table",
-            "goal": "the red block is on top of the blue block and the blue block is on top of the yellow block",
-            "plan": "\npick up the red block\nstack the red block on top of the blue block\n[PLAN END]\n",
-            "states": [
-                "the red block is clear, the hand is empty, the red block is on top of the blue block, the blue block is on top of the yellow block, the yellow block is on top of the white block, the white block is on top of the orange block and the orange block is on the table"
+                "array([[0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])"
             ]
         }
     ],

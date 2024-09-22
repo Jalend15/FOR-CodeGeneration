@@ -46,18 +46,19 @@ class PromptDataModule(LightningDataModule):
         self.val_data = None
 
     def setup_arc(self):
-        train_csv = "data/1D_ARC_test_data.csv"
+        train_csv = "/home/jalend/FOR-CodeGeneration/1D-ARC/data/train_3_final_15.csv"
         complete_train_data = pd.read_csv(train_csv)
-        train_tasks = ["1d_move_1p"]
+        train_tasks =  ["1d_move_1p", "1d_fill", "1d_flip"]
         train_data_by_task = complete_train_data[
             complete_train_data["task"].isin(train_tasks)
         ]
-        no_of_examples_per_task = 1
+        no_of_examples_per_task = 5
         train_data_arc = train_data_by_task.groupby("task").head(
             no_of_examples_per_task
         )
+        print(train_data_arc,"jalend")
         test_tasks = train_tasks
-        test_csv = "data/1D_ARC_test_data.csv"
+        test_csv = "/home/jalend/FOR-CodeGeneration/1D-ARC/data/test_3_final_135.csv"
         complete_test_data = pd.read_csv(test_csv)
         test_data_by_task = complete_test_data[
             complete_test_data["task"].isin(test_tasks)

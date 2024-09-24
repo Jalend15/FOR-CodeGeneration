@@ -7,7 +7,62 @@ import torch
 import torch.nn as nn
 from itertools import product, permutations, combinations, combinations_with_replacement
 from functools import partial
-from collections import Counter
+from collections import Counter, defaultdict
+# Copyright (c) 2024 Qualcomm Technologies, Inc.
+# All Rights Reserved.
+
+from importlib import import_module
+from typing import Any, Dict, Iterable, List, Union
+
+
+
+def transform_to_function(input_str: str, function_name: str) -> str:
+    header = f"def {function_name}(I):\n"
+    indented_content = "    " + input_str.strip().replace("\n", "\n    ")
+    footer = "\n    return O"
+    return header + indented_content + footer
+
+
+def get_tokenizer(config):
+    tokenizer_class = get_class(config.data.dataloader.tokenizer.cls)
+    tokenizer = tokenizer_class.from_pretrained(
+        config.data.dataloader.tokenizer.name, cache_dir=config.model.cache_dir
+    )
+    if not tokenizer.pad_token_id:
+        tokenizer.pad_token_id = config.data.dataloader.tokenizer.pad_token_id
+    if not tokenizer.eos_token_id:
+        tokenizer.eos_token_id = config.data.dataloader.tokenizer.eos_token_id
+    if (
+        tokenizer.pad_token_id != config.data.dataloader.tokenizer.pad_token_id
+        or tokenizer.eos_token_id != config.data.dataloader.tokenizer.eos_token_id
+    ):
+        raise Exception("Mismatch in tokenizer")
+    return tokenizer
+
+
+def get_class(class_str: str) -> Any:
+    """
+    A little util to import a class from any package, withot the need for an explicit import
+    statement in the header. Useful when your classes can come from many different modules (like HF models).
+    Can actually work also with modules which are not classes, like functions.
+    :param class_str: The name of the class, inclusive of namespace from the root of the
+     module is comes from (e.g. torch.nn.Linear, NOT just Linear
+    :return: The class itself.
+    """
+    package = import_module(".".join(class_str.split(".")[:-1]))
+    return getattr(package, class_str.split(".")[-1])
+
+
+def get_grid_size(grid):
+    num_rows = len(grid)
+    num_columns = len(grid[0]) if num_rows > 0 else 0
+    return (num_rows, num_columns)
+
+
+def get_num_pixels(grid):
+    num_rows = len(grid)
+    num_columns = len(grid[0]) if num_rows > 0 else 0
+    return num_rows if num_columns == 0 else num_rows * num_columns
 
 def identityM(matrix):
     """
@@ -374,150 +429,150 @@ def predictCNNDummyCommonColors(matrix, model, commonColors):
     return pred
 """
 
-def trainCNNDummyColor(t, k, pad):
-    """
-    This function trains a CNN with only one convolution of filter k and with
-    padding values equal to pad.
-    The training samples will have two channels: the background color and any
-    other color. The training loop loops through all the non-background colors
-    of each sample, treating them independently.
-    This is useful for tasks like number 3.
-    """
-    model = Models.OneConvModel(2, k, pad)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-    criterion = nn.CrossEntropyLoss()
-    for e in range(50): # numEpochs            
-        optimizer.zero_grad()
-        loss = 0.0
-        for s in t.trainSamples:
-            for c in s.colors:
-                if c != t.backgroundColor:
-                    x = dummifyColor(s.inMatrix.m, c)
-                    x = torch.tensor(x).unsqueeze(0).float()
-                    y = deBackgroundizeMatrix(s.outMatrix.m, c)
-                    y = torch.tensor(y).unsqueeze(0).long()
-                    y_pred = model(x)
-                    loss += criterion(y_pred, y)
-        loss.backward()
-        optimizer.step()
-    return model
+# def trainCNNDummyColor(t, k, pad):
+#     """
+#     This function trains a CNN with only one convolution of filter k and with
+#     padding values equal to pad.
+#     The training samples will have two channels: the background color and any
+#     other color. The training loop loops through all the non-background colors
+#     of each sample, treating them independently.
+#     This is useful for tasks like number 3.
+#     """
+#     model = Models.OneConvModel(2, k, pad)
+#     optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+#     criterion = nn.CrossEntropyLoss()
+#     for e in range(50): # numEpochs            
+#         optimizer.zero_grad()
+#         loss = 0.0
+#         for s in t.trainSamples:
+#             for c in s.colors:
+#                 if c != t.backgroundColor:
+#                     x = dummifyColor(s.inMatrix.m, c)
+#                     x = torch.tensor(x).unsqueeze(0).float()
+#                     y = deBackgroundizeMatrix(s.outMatrix.m, c)
+#                     y = torch.tensor(y).unsqueeze(0).long()
+#                     y_pred = model(x)
+#                     loss += criterion(y_pred, y)
+#         loss.backward()
+#         optimizer.step()
+#     return model
 
-@torch.no_grad()
-def predictCNNDummyColor(matrix, model):
-    """
-    Predict function for a model trained using trainCNNDummyColor.
-    """
-    m = matrix.m.copy()
-    pred = np.ones(m.shape, dtype=np.uint8) * matrix.backgroundColor
-    for c in matrix.colors:
-        if c != matrix.backgroundColor:
-            x = dummifyColor(m, c)
-            x = torch.tensor(x).unsqueeze(0).float()
-            x = model(x).argmax(1).squeeze(0).numpy()
-            for i,j in np.ndindex(m.shape):
-                if x[i,j] != 0:
-                    pred[i,j] = c
-    return pred
+# @torch.no_grad()
+# def predictCNNDummyColor(matrix, model):
+#     """
+#     Predict function for a model trained using trainCNNDummyColor.
+#     """
+#     m = matrix.m.copy()
+#     pred = np.ones(m.shape, dtype=np.uint8) * matrix.backgroundColor
+#     for c in matrix.colors:
+#         if c != matrix.backgroundColor:
+#             x = dummifyColor(m, c)
+#             x = torch.tensor(x).unsqueeze(0).float()
+#             x = model(x).argmax(1).squeeze(0).numpy()
+#             for i,j in np.ndindex(m.shape):
+#                 if x[i,j] != 0:
+#                     pred[i,j] = c
+#     return pred
 
-def trainCNN(t, commonColors, nChannels, k=5, pad=0):
-    """
-    This function trains a CNN model with kernel k and padding value pad.
-    It is required that all the training samples have the same number of colors
-    (adding the colors in the input and in the output).
-    It is also required that the output matrix has always the same shape as the
-    input matrix.
-    The colors are tried to be order in a specific way: first the colors that
-    are common to every sample (commonColors), and then the others.
-    """
-    model = Models.OneConvModel(nChannels, k, pad)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-    #losses = np.zeros(100)
-    for e in range(100):
-        optimizer.zero_grad()
-        loss = 0.0
-        for s in t.trainSamples:
-            sColors = commonColors.copy()
-            for c in s.colors:
-                if c not in sColors:
-                    sColors.append(c)
-            rel, invRel = relDicts(sColors)
-            x = dummify(s.inMatrix.m, nChannels, rel)
-            x = torch.tensor(x).unsqueeze(0).float()
-            y = s.outMatrix.m.copy()
-            for i,j in np.ndindex(y.shape):
-                y[i,j] = invRel[y[i,j]]
-            y = torch.tensor(y).unsqueeze(0).long()
-            y_pred = model(x)
-            loss += criterion(y_pred, y)
-        loss.backward()
-        optimizer.step()
-        #losses[e] = loss
-    return model#, losses
+# def trainCNN(t, commonColors, nChannels, k=5, pad=0):
+#     """
+#     This function trains a CNN model with kernel k and padding value pad.
+#     It is required that all the training samples have the same number of colors
+#     (adding the colors in the input and in the output).
+#     It is also required that the output matrix has always the same shape as the
+#     input matrix.
+#     The colors are tried to be order in a specific way: first the colors that
+#     are common to every sample (commonColors), and then the others.
+#     """
+#     model = Models.OneConvModel(nChannels, k, pad)
+#     criterion = nn.CrossEntropyLoss()
+#     optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+#     #losses = np.zeros(100)
+#     for e in range(100):
+#         optimizer.zero_grad()
+#         loss = 0.0
+#         for s in t.trainSamples:
+#             sColors = commonColors.copy()
+#             for c in s.colors:
+#                 if c not in sColors:
+#                     sColors.append(c)
+#             rel, invRel = relDicts(sColors)
+#             x = dummify(s.inMatrix.m, nChannels, rel)
+#             x = torch.tensor(x).unsqueeze(0).float()
+#             y = s.outMatrix.m.copy()
+#             for i,j in np.ndindex(y.shape):
+#                 y[i,j] = invRel[y[i,j]]
+#             y = torch.tensor(y).unsqueeze(0).long()
+#             y_pred = model(x)
+#             loss += criterion(y_pred, y)
+#         loss.backward()
+#         optimizer.step()
+#         #losses[e] = loss
+#     return model#, losses
 
-@torch.no_grad()
-def predictCNN(matrix, model, commonColors, nChannels):
-    """
-    Predict function for a model trained using trainCNN.
-    """
-    m = matrix.m.copy()
-    pred = np.zeros(m.shape, dtype=np.uint8)
-    sColors = commonColors.copy()
-    for c in matrix.colors:
-        if c not in sColors:
-            sColors.append(c)
-    rel, invRel = relDicts(sColors)
-    if len(sColors) > nChannels:
-        return m
-    x = dummify(m, nChannels, rel)
-    x = torch.tensor(x).unsqueeze(0).float()
-    x = model(x).argmax(1).squeeze(0).numpy()
-    for i,j in np.ndindex(m.shape):
-        if x[i,j] not in rel.keys():
-            pred[i,j] = x[i,j]
-        else:
-            pred[i,j] = rel[x[i,j]][0]
-    return pred
+# @torch.no_grad()
+# def predictCNN(matrix, model, commonColors, nChannels):
+#     """
+#     Predict function for a model trained using trainCNN.
+#     """
+#     m = matrix.m.copy()
+#     pred = np.zeros(m.shape, dtype=np.uint8)
+#     sColors = commonColors.copy()
+#     for c in matrix.colors:
+#         if c not in sColors:
+#             sColors.append(c)
+#     rel, invRel = relDicts(sColors)
+#     if len(sColors) > nChannels:
+#         return m
+#     x = dummify(m, nChannels, rel)
+#     x = torch.tensor(x).unsqueeze(0).float()
+#     x = model(x).argmax(1).squeeze(0).numpy()
+#     for i,j in np.ndindex(m.shape):
+#         if x[i,j] not in rel.keys():
+#             pred[i,j] = x[i,j]
+#         else:
+#             pred[i,j] = rel[x[i,j]][0]
+#     return pred
 
-def getBestCNN(t):
-    """
-    This function returns the best CNN with only one convolution, after trying
-    different kernel sizes and padding values.
-    There are as many channels as total colors or the minimum number of
-    channels that is necessary.
-    """
-    kernel = [3,5,7]
-    pad = [0,-1]    
-    bestScore = 100000
-    for k, p in product(kernel, pad):
-        cc = list(range(10))
-        model = trainCNN(t, commonColors=cc, nChannels=10, k=k, pad=p)
-        score = sum([incorrectPixels(predictCNN(t.trainSamples[s].inMatrix, model, cc, 10), \
-                                     t.trainSamples[s].outMatrix.m) for s in range(t.nTrain)])
-        if score < bestScore:
-            bestScore=score
-            ret = partial(predictCNN, model=model, commonColors=cc, nChannels=10)
-            if score==0:
-                return ret
-    return ret
+# def getBestCNN(t):
+#     """
+#     This function returns the best CNN with only one convolution, after trying
+#     different kernel sizes and padding values.
+#     There are as many channels as total colors or the minimum number of
+#     channels that is necessary.
+#     """
+#     kernel = [3,5,7]
+#     pad = [0,-1]    
+#     bestScore = 100000
+#     for k, p in product(kernel, pad):
+#         cc = list(range(10))
+#         model = trainCNN(t, commonColors=cc, nChannels=10, k=k, pad=p)
+#         score = sum([incorrectPixels(predictCNN(t.trainSamples[s].inMatrix, model, cc, 10), \
+#                                      t.trainSamples[s].outMatrix.m) for s in range(t.nTrain)])
+#         if score < bestScore:
+#             bestScore=score
+#             ret = partial(predictCNN, model=model, commonColors=cc, nChannels=10)
+#             if score==0:
+#                 return ret
+#     return ret
 
-def getBestSameNSampleColorsCNN(t):
-    kernel = [3,5,7]
-    pad = [0,-1]    
-    bestScore = 100000
-    for k, p in product(kernel, pad):
-        cc = list(t.commonSampleColors)
-        nc = t.trainSamples[0].nColors
-        model = trainCNN(t, commonColors=cc, nChannels=nc, k=k, pad=p)
-        score = sum([incorrectPixels(predictCNN(t.trainSamples[s].inMatrix, model, cc, nc), \
-                                     t.trainSamples[s].outMatrix.m) for s in range(t.nTrain)])
-        if score < bestScore:
-            bestScore=score
-            ret = partial(predictCNN, model=model, commonColors=cc, nChannels=nc)
-            if score==0:
-                return ret
+# def getBestSameNSampleColorsCNN(t):
+#     kernel = [3,5,7]
+#     pad = [0,-1]    
+#     bestScore = 100000
+#     for k, p in product(kernel, pad):
+#         cc = list(t.commonSampleColors)
+#         nc = t.trainSamples[0].nColors
+#         model = trainCNN(t, commonColors=cc, nChannels=nc, k=k, pad=p)
+#         score = sum([incorrectPixels(predictCNN(t.trainSamples[s].inMatrix, model, cc, nc), \
+#                                      t.trainSamples[s].outMatrix.m) for s in range(t.nTrain)])
+#         if score < bestScore:
+#             bestScore=score
+#             ret = partial(predictCNN, model=model, commonColors=cc, nChannels=nc)
+#             if score==0:
+#                 return ret
             
-    return ret
+#     return ret
 
 # %% CNN learning the output
     
@@ -1519,295 +1574,295 @@ def paintCrossedCoordinates(matrix, refColor, outColor, fixedColors=set()):
 
 # If input always has the same shape and output always has the same shape
 # And there is always the same number of colors in each sample    
-def trainLinearModel(t, commonColors, nChannels):
-    """
-    This function trains a linear model.
-    It is required that all the training samples have the same number of colors
-    (adding the colors in the input and in the output).
-    It is also required that all the input matrices have the same shape, and
-    all the output matrices have the same shape.
-    The colors are tried to be order in a specific way: first the colors that
-    are common to every sample (commonColors), and then the others.
-    """
-    model = Models.LinearModel(t.inShape, t.outShape, nChannels)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-    for e in range(100):
-        optimizer.zero_grad()
-        loss = 0.0
-        for s in t.trainSamples:
-            sColors = commonColors.copy()
-            for c in s.colors:
-                if c not in sColors:
-                    sColors.append(c)
-            rel, invRel = relDicts(sColors)
-            x = dummify(s.inMatrix.m, nChannels, rel)
-            x = torch.tensor(x).unsqueeze(0).float()
-            y = s.outMatrix.m.copy()
-            for i,j in np.ndindex(y.shape):
-                y[i,j] = invRel[y[i,j]]
-            y = torch.tensor(y).unsqueeze(0).view(1,-1).long()
-            y_pred = model(x)
-            loss += criterion(y_pred, y)
-        loss.backward()
-        optimizer.step()
-    return model
+# def trainLinearModel(t, commonColors, nChannels):
+#     """
+#     This function trains a linear model.
+#     It is required that all the training samples have the same number of colors
+#     (adding the colors in the input and in the output).
+#     It is also required that all the input matrices have the same shape, and
+#     all the output matrices have the same shape.
+#     The colors are tried to be order in a specific way: first the colors that
+#     are common to every sample (commonColors), and then the others.
+#     """
+#     model = Models.LinearModel(t.inShape, t.outShape, nChannels)
+#     criterion = nn.CrossEntropyLoss()
+#     optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+#     for e in range(100):
+#         optimizer.zero_grad()
+#         loss = 0.0
+#         for s in t.trainSamples:
+#             sColors = commonColors.copy()
+#             for c in s.colors:
+#                 if c not in sColors:
+#                     sColors.append(c)
+#             rel, invRel = relDicts(sColors)
+#             x = dummify(s.inMatrix.m, nChannels, rel)
+#             x = torch.tensor(x).unsqueeze(0).float()
+#             y = s.outMatrix.m.copy()
+#             for i,j in np.ndindex(y.shape):
+#                 y[i,j] = invRel[y[i,j]]
+#             y = torch.tensor(y).unsqueeze(0).view(1,-1).long()
+#             y_pred = model(x)
+#             loss += criterion(y_pred, y)
+#         loss.backward()
+#         optimizer.step()
+#     return model
 
-@torch.no_grad()
-def predictLinearModel(matrix, model, commonColors, nChannels, outShape):
-    """
-    Predict function for a model trained using trainLinearModel.
-    """
-    m = matrix.m.copy()
-    pred = np.zeros(outShape, dtype=np.uint8)
-    sColors = commonColors.copy()
-    for c in matrix.colors:
-        if c not in sColors:
-            sColors.append(c)
-    rel, invRel = relDicts(sColors)
-    if len(sColors) > nChannels:
-        return
-    x = dummify(m, nChannels, rel)
-    x = torch.tensor(x).unsqueeze(0).float()
-    x = model(x).argmax(1).squeeze(0).view(outShape).numpy()
-    for i,j in np.ndindex(outShape):
-        if x[i,j] not in rel.keys():
-            pred[i,j] = x[i,j]
-        else:
-            pred[i,j] = rel[x[i,j]][0]
-    return pred
+# @torch.no_grad()
+# def predictLinearModel(matrix, model, commonColors, nChannels, outShape):
+#     """
+#     Predict function for a model trained using trainLinearModel.
+#     """
+#     m = matrix.m.copy()
+#     pred = np.zeros(outShape, dtype=np.uint8)
+#     sColors = commonColors.copy()
+#     for c in matrix.colors:
+#         if c not in sColors:
+#             sColors.append(c)
+#     rel, invRel = relDicts(sColors)
+#     if len(sColors) > nChannels:
+#         return
+#     x = dummify(m, nChannels, rel)
+#     x = torch.tensor(x).unsqueeze(0).float()
+#     x = model(x).argmax(1).squeeze(0).view(outShape).numpy()
+#     for i,j in np.ndindex(outShape):
+#         if x[i,j] not in rel.keys():
+#             pred[i,j] = x[i,j]
+#         else:
+#             pred[i,j] = rel[x[i,j]][0]
+#     return pred
 
-def trainLinearDummyModel(t):
-    """
-    This function trains a linear model.
-    The training samples will have two channels: the background color and any
-    other color. The training loop loops through all the non-background colors
-    of each sample, treating them independently.
-    """
-    model = Models.LinearModelDummy(t.inShape, t.outShape)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.05)
-    for e in range(100):
-        optimizer.zero_grad()
-        loss = 0.0
-        for s in t.trainSamples:
-            for c in s.colors:
-                if c != t.backgroundColor:
-                    x = dummifyColor(s.inMatrix.m, c)
-                    x = torch.tensor(x).unsqueeze(0).float()
-                    y = deBackgroundizeMatrix(s.outMatrix.m, c)
-                    y = torch.tensor(y).unsqueeze(0).long()
-                    y = y.view(1, -1)
-                    y_pred = model(x)
-                    loss += criterion(y_pred, y)
-        loss.backward()
-        optimizer.step()
-    return model
+# def trainLinearDummyModel(t):
+#     """
+#     This function trains a linear model.
+#     The training samples will have two channels: the background color and any
+#     other color. The training loop loops through all the non-background colors
+#     of each sample, treating them independently.
+#     """
+#     model = Models.LinearModelDummy(t.inShape, t.outShape)
+#     criterion = nn.CrossEntropyLoss()
+#     optimizer = torch.optim.Adam(model.parameters(), lr=0.05)
+#     for e in range(100):
+#         optimizer.zero_grad()
+#         loss = 0.0
+#         for s in t.trainSamples:
+#             for c in s.colors:
+#                 if c != t.backgroundColor:
+#                     x = dummifyColor(s.inMatrix.m, c)
+#                     x = torch.tensor(x).unsqueeze(0).float()
+#                     y = deBackgroundizeMatrix(s.outMatrix.m, c)
+#                     y = torch.tensor(y).unsqueeze(0).long()
+#                     y = y.view(1, -1)
+#                     y_pred = model(x)
+#                     loss += criterion(y_pred, y)
+#         loss.backward()
+#         optimizer.step()
+#     return model
     
-@torch.no_grad()
-def predictLinearDummyModel(matrix, model, outShape, backgroundColor):
-    """
-    Predict function for a model trained using trainLinearDummyModel.
-    """
-    m = matrix.m.copy()
-    pred = np.zeros(outShape, dtype=np.uint8)
-    for c in matrix.colors:
-        if c != backgroundColor:
-            x = dummifyColor(m, c)
-            x = torch.tensor(x).unsqueeze(0).float()
-            x = model(x).argmax(1).squeeze().view(outShape).numpy()
-            for i,j in np.ndindex(outShape):
-                if x[i,j] != 0:
-                    pred[i,j] = c
-    return pred
+# @torch.no_grad()
+# def predictLinearDummyModel(matrix, model, outShape, backgroundColor):
+#     """
+#     Predict function for a model trained using trainLinearDummyModel.
+#     """
+#     m = matrix.m.copy()
+#     pred = np.zeros(outShape, dtype=np.uint8)
+#     for c in matrix.colors:
+#         if c != backgroundColor:
+#             x = dummifyColor(m, c)
+#             x = torch.tensor(x).unsqueeze(0).float()
+#             x = model(x).argmax(1).squeeze().view(outShape).numpy()
+#             for i,j in np.ndindex(outShape):
+#                 if x[i,j] != 0:
+#                     pred[i,j] = c
+#     return pred
 
-def trainLinearModelShapeColor(t):
-    """
-    For trainLinearModelShapeColor we need to have the same shapes in the input
-    and in the output, and in the exact same positions. The training loop loops
-    through all the shapes of the task, and its aim is to predict the final
-    color of each shape.
-    The features of the linear model are:
-        - One feature per color in the task. Value of 1 if the shape has that
-        color, 0 otherwise.
-        - Several features representing the number of pixels of the shape.
-        Only one of these features can be equal to 1, the rest will be equal
-        to 0.
-        - 5 features to encode the number of holes of the shape (0,1,2,3 or 4)
-        - Feature encoding whether the shape is a square or not.
-        - Feature encoding whether the shape is a rectangle or not.
-        - Feature encoding whether the shape touches the border or not.
-    """
-    inColors = set.union(*t.changedInColors+t.changedOutColors) - t.unchangedColors
-    colors = list(inColors) + list(set.union(*t.changedInColors+t.changedOutColors) - inColors)
-    rel, invRel = relDicts(list(colors))
-    shapePixelNumbers = t.shapePixelNumbers
-    _,nPixelsRel = relDicts(shapePixelNumbers)
-    # inFeatures: [colors that change], [number of pixels]+1, [number of holes] (0-4),
-    # isSquare, isRectangle, isBorder
-    nInFeatures = len(inColors) + len(shapePixelNumbers) + 1 + 5 + 3
-    model = Models.SimpleLinearModel(nInFeatures, len(colors))
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-    num_epochs = 80
-    trainShapes = []
-    for s in t.trainSamples:
-        for shapeI in range(s.inMatrix.nShapes):
-            trainShapes.append((s.inMatrix.shapes[shapeI],\
-                                s.outMatrix.shapes[shapeI].color))
-        for e in range(num_epochs):
-            optimizer.zero_grad()
-            loss = 0.0
-            for s,label in trainShapes:
-                inFeatures = torch.zeros(nInFeatures)
-                if s.color in inColors:
-                    inFeatures[invRel[s.color]] = 1
-                    inFeatures[len(inColors)+nPixelsRel[s.nPixels]] = 1
-                    inFeatures[len(inColors)+len(shapePixelNumbers)+1+min(s.nHoles, 4)] = 1
-                    inFeatures[nInFeatures-1] = int(s.isSquare)
-                    inFeatures[nInFeatures-2] = int(s.isRectangle)
-                    inFeatures[nInFeatures-1] = s.isBorder
-                    #inFeatures[nInFeatures-4] = s.nHoles
-                    #inFeatures[t.nColors+5] = s.position[0].item()
-                    #inFeatures[t.nColors+6] = s.position[1].item()
-                    y = torch.tensor(invRel[label]).unsqueeze(0).long()
-                    x = inFeatures.unsqueeze(0).float()
-                    y_pred = model(x)
-                    loss += criterion(y_pred, y)
-            if loss == 0:
-                continue
-            loss.backward()
-            optimizer.step()
-            for p in model.parameters():
-                p.data.clamp_(min=0.05, max=1)
-    return model
+# def trainLinearModelShapeColor(t):
+#     """
+#     For trainLinearModelShapeColor we need to have the same shapes in the input
+#     and in the output, and in the exact same positions. The training loop loops
+#     through all the shapes of the task, and its aim is to predict the final
+#     color of each shape.
+#     The features of the linear model are:
+#         - One feature per color in the task. Value of 1 if the shape has that
+#         color, 0 otherwise.
+#         - Several features representing the number of pixels of the shape.
+#         Only one of these features can be equal to 1, the rest will be equal
+#         to 0.
+#         - 5 features to encode the number of holes of the shape (0,1,2,3 or 4)
+#         - Feature encoding whether the shape is a square or not.
+#         - Feature encoding whether the shape is a rectangle or not.
+#         - Feature encoding whether the shape touches the border or not.
+#     """
+#     inColors = set.union(*t.changedInColors+t.changedOutColors) - t.unchangedColors
+#     colors = list(inColors) + list(set.union(*t.changedInColors+t.changedOutColors) - inColors)
+#     rel, invRel = relDicts(list(colors))
+#     shapePixelNumbers = t.shapePixelNumbers
+#     _,nPixelsRel = relDicts(shapePixelNumbers)
+#     # inFeatures: [colors that change], [number of pixels]+1, [number of holes] (0-4),
+#     # isSquare, isRectangle, isBorder
+#     nInFeatures = len(inColors) + len(shapePixelNumbers) + 1 + 5 + 3
+#     model = Models.SimpleLinearModel(nInFeatures, len(colors))
+#     criterion = nn.CrossEntropyLoss()
+#     optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+#     num_epochs = 80
+#     trainShapes = []
+#     for s in t.trainSamples:
+#         for shapeI in range(s.inMatrix.nShapes):
+#             trainShapes.append((s.inMatrix.shapes[shapeI],\
+#                                 s.outMatrix.shapes[shapeI].color))
+#         for e in range(num_epochs):
+#             optimizer.zero_grad()
+#             loss = 0.0
+#             for s,label in trainShapes:
+#                 inFeatures = torch.zeros(nInFeatures)
+#                 if s.color in inColors:
+#                     inFeatures[invRel[s.color]] = 1
+#                     inFeatures[len(inColors)+nPixelsRel[s.nPixels]] = 1
+#                     inFeatures[len(inColors)+len(shapePixelNumbers)+1+min(s.nHoles, 4)] = 1
+#                     inFeatures[nInFeatures-1] = int(s.isSquare)
+#                     inFeatures[nInFeatures-2] = int(s.isRectangle)
+#                     inFeatures[nInFeatures-1] = s.isBorder
+#                     #inFeatures[nInFeatures-4] = s.nHoles
+#                     #inFeatures[t.nColors+5] = s.position[0].item()
+#                     #inFeatures[t.nColors+6] = s.position[1].item()
+#                     y = torch.tensor(invRel[label]).unsqueeze(0).long()
+#                     x = inFeatures.unsqueeze(0).float()
+#                     y_pred = model(x)
+#                     loss += criterion(y_pred, y)
+#             if loss == 0:
+#                 continue
+#             loss.backward()
+#             optimizer.step()
+#             for p in model.parameters():
+#                 p.data.clamp_(min=0.05, max=1)
+#     return model
 
-@torch.no_grad()
-def predictLinearModelShapeColor(matrix, model, colors, unchangedColors, shapePixelNumbers):
-    """
-    Predict function for a model trained using trainLinearModelShapeColor.
-    """
-    inColors = colors - unchangedColors
-    colors = list(inColors) + list(colors - inColors)
-    rel, invRel = relDicts(list(colors))
-    _,nPixelsRel = relDicts(shapePixelNumbers)
-    nInFeatures = len(inColors) + len(shapePixelNumbers) + 1 + 5 + 3
-    pred = matrix.m.copy()
-    for shape in matrix.shapes:
-        if shape.color in inColors:
-            inFeatures = torch.zeros(nInFeatures)
-            inFeatures[invRel[shape.color]] = 1
-            if shape.nPixels not in nPixelsRel.keys():
-                inFeatures[len(inColors)+len(shapePixelNumbers)] = 1
-            else:
-                inFeatures[len(inColors)+nPixelsRel[shape.nPixels]] = 1
-            inFeatures[len(inColors)+len(shapePixelNumbers)+1+min(shape.nHoles, 4)] = 1
-            inFeatures[nInFeatures-1] = int(shape.isSquare)
-            inFeatures[nInFeatures-2] = int(shape.isRectangle)
-            inFeatures[nInFeatures-3] = shape.isBorder
-            #inFeatures[nInFeatures-4] = shape.nHoles
-            #inFeatures[nColors+5] = shape.position[0].item()
-            #inFeatures[nColors+6] = shape.position[1].item()
-            x = inFeatures.unsqueeze(0).float()
-            y = model(x).squeeze().argmax().item()
-            pred = changeColorShapes(pred, [shape], rel[y][0])
-    return pred
+# @torch.no_grad()
+# def predictLinearModelShapeColor(matrix, model, colors, unchangedColors, shapePixelNumbers):
+#     """
+#     Predict function for a model trained using trainLinearModelShapeColor.
+#     """
+#     inColors = colors - unchangedColors
+#     colors = list(inColors) + list(colors - inColors)
+#     rel, invRel = relDicts(list(colors))
+#     _,nPixelsRel = relDicts(shapePixelNumbers)
+#     nInFeatures = len(inColors) + len(shapePixelNumbers) + 1 + 5 + 3
+#     pred = matrix.m.copy()
+#     for shape in matrix.shapes:
+#         if shape.color in inColors:
+#             inFeatures = torch.zeros(nInFeatures)
+#             inFeatures[invRel[shape.color]] = 1
+#             if shape.nPixels not in nPixelsRel.keys():
+#                 inFeatures[len(inColors)+len(shapePixelNumbers)] = 1
+#             else:
+#                 inFeatures[len(inColors)+nPixelsRel[shape.nPixels]] = 1
+#             inFeatures[len(inColors)+len(shapePixelNumbers)+1+min(shape.nHoles, 4)] = 1
+#             inFeatures[nInFeatures-1] = int(shape.isSquare)
+#             inFeatures[nInFeatures-2] = int(shape.isRectangle)
+#             inFeatures[nInFeatures-3] = shape.isBorder
+#             #inFeatures[nInFeatures-4] = shape.nHoles
+#             #inFeatures[nColors+5] = shape.position[0].item()
+#             #inFeatures[nColors+6] = shape.position[1].item()
+#             x = inFeatures.unsqueeze(0).float()
+#             y = model(x).squeeze().argmax().item()
+#             pred = changeColorShapes(pred, [shape], rel[y][0])
+#     return pred
 
 # %% LSTM
-def prepare_sequence(seq, to_ix):
-    """
-    Utility function for LSTM.
-    """
-    idxs = [to_ix[w] for w in seq]
-    return torch.tensor(idxs, dtype=torch.long)
+# def prepare_sequence(seq, to_ix):
+#     """
+#     Utility function for LSTM.
+#     """
+#     idxs = [to_ix[w] for w in seq]
+#     return torch.tensor(idxs, dtype=torch.long)
 
-def trainLSTM(t, inColors, colors, inRel, outRel, reverse, order):
-    """
-    This function tries to train a model that colors shapes according to a
-    sequence.
-    """
-    EMBEDDING_DIM = 10
-    HIDDEN_DIM = 10
-    model = Models.LSTMTagger(EMBEDDING_DIM, HIDDEN_DIM, len(inColors), len(colors))
-    loss_function = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-    num_epochs = 150
-    for epoch in range(num_epochs):
-        optimizer.zero_grad()
-        loss = 0.0
-        for s in t.trainSamples:
-            inShapes = [shape for shape in s.inMatrix.shapes if shape.color in inColors]
-            inSeq = sorted(inShapes, key=lambda x: (x.position[order[0]], x.position[order[1]]), reverse=reverse)
-            inSeq = [shape.color for shape in inSeq]
-            outShapes = [shape for shape in s.outMatrix.shapes if shape.color in colors]
-            targetSeq = sorted(outShapes, key=lambda x: (x.position[order[0]], x.position[order[1]]), reverse=reverse)
-            targetSeq = [shape.color for shape in targetSeq]
-            inSeq = prepare_sequence(inSeq, inRel)
-            targetSeq = prepare_sequence(targetSeq, outRel)
-            tag_scores = model(inSeq)
-            loss += loss_function(tag_scores, targetSeq)
-        loss.backward()
-        optimizer.step()
-    return model
+# def trainLSTM(t, inColors, colors, inRel, outRel, reverse, order):
+#     """
+#     This function tries to train a model that colors shapes according to a
+#     sequence.
+#     """
+#     EMBEDDING_DIM = 10
+#     HIDDEN_DIM = 10
+#     model = Models.LSTMTagger(EMBEDDING_DIM, HIDDEN_DIM, len(inColors), len(colors))
+#     loss_function = nn.CrossEntropyLoss()
+#     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+#     num_epochs = 150
+#     for epoch in range(num_epochs):
+#         optimizer.zero_grad()
+#         loss = 0.0
+#         for s in t.trainSamples:
+#             inShapes = [shape for shape in s.inMatrix.shapes if shape.color in inColors]
+#             inSeq = sorted(inShapes, key=lambda x: (x.position[order[0]], x.position[order[1]]), reverse=reverse)
+#             inSeq = [shape.color for shape in inSeq]
+#             outShapes = [shape for shape in s.outMatrix.shapes if shape.color in colors]
+#             targetSeq = sorted(outShapes, key=lambda x: (x.position[order[0]], x.position[order[1]]), reverse=reverse)
+#             targetSeq = [shape.color for shape in targetSeq]
+#             inSeq = prepare_sequence(inSeq, inRel)
+#             targetSeq = prepare_sequence(targetSeq, outRel)
+#             tag_scores = model(inSeq)
+#             loss += loss_function(tag_scores, targetSeq)
+#         loss.backward()
+#         optimizer.step()
+#     return model
     
-@torch.no_grad()
-def predictLSTM(matrix, model, inColors, colors, inRel, rel, reverse, order):
-    """
-    Predict function for a model trained using trainLSTM.
-    """
-    m = matrix.m.copy()
-    inShapes = [shape for shape in matrix.shapes if shape.color in inColors]
-    if len(inShapes)==0:
-        return m
-    sortedShapes = sorted(inShapes, key=lambda x: (x.position[order[0]], x.position[order[1]]), reverse=reverse)
-    inSeq = [shape.color for shape in sortedShapes]
-    inSeq = prepare_sequence(inSeq, inRel)
-    pred = model(inSeq).argmax(1).numpy()
-    for shapeI in range(len(sortedShapes)):
-        m = changeColorShapes(m, [sortedShapes[shapeI]], rel[pred[shapeI]][0])
-    return m
+# @torch.no_grad()
+# def predictLSTM(matrix, model, inColors, colors, inRel, rel, reverse, order):
+#     """
+#     Predict function for a model trained using trainLSTM.
+#     """
+#     m = matrix.m.copy()
+#     inShapes = [shape for shape in matrix.shapes if shape.color in inColors]
+#     if len(inShapes)==0:
+#         return m
+#     sortedShapes = sorted(inShapes, key=lambda x: (x.position[order[0]], x.position[order[1]]), reverse=reverse)
+#     inSeq = [shape.color for shape in sortedShapes]
+#     inSeq = prepare_sequence(inSeq, inRel)
+#     pred = model(inSeq).argmax(1).numpy()
+#     for shapeI in range(len(sortedShapes)):
+#         m = changeColorShapes(m, [sortedShapes[shapeI]], rel[pred[shapeI]][0])
+#     return m
              
-def getBestLSTM(t):
-    """
-    This function tries to find out which one is the best-fitting LSTM model
-    for the task t. The LSTM models try to change the color of shapes to fit
-    sequences. Examples are tasks 175, 331, 459 or 594.
-    4 LSTM models are trained, considering models that order shapes by X
-    coordinage, models that order them by Y coordinate, and considering both
-    directions of the sequence (normal and reverse).
-    """
-    colors = set.union(*t.changedInColors+t.changedOutColors)
-    inColors = colors - t.unchangedColors
-    if len(inColors) == 0:
-        return partial(identityM)
-    _,inRel = relDicts(list(inColors))
-    colors = list(inColors) + list(colors - inColors)
-    rel, outRel = relDicts(colors)
+# def getBestLSTM(t):
+#     """
+#     This function tries to find out which one is the best-fitting LSTM model
+#     for the task t. The LSTM models try to change the color of shapes to fit
+#     sequences. Examples are tasks 175, 331, 459 or 594.
+#     4 LSTM models are trained, considering models that order shapes by X
+#     coordinage, models that order them by Y coordinate, and considering both
+#     directions of the sequence (normal and reverse).
+#     """
+#     colors = set.union(*t.changedInColors+t.changedOutColors)
+#     inColors = colors - t.unchangedColors
+#     if len(inColors) == 0:
+#         return partial(identityM)
+#     _,inRel = relDicts(list(inColors))
+#     colors = list(inColors) + list(colors - inColors)
+#     rel, outRel = relDicts(colors)
     
-    for s in t.trainSamples:
-        inShapes = [shape for shape in s.inMatrix.shapes if shape.color in inColors]
-        outShapes = [shape for shape in s.outMatrix.shapes if shape.color in colors]
-        if len(inShapes) != len(outShapes) or len(inShapes) == 0:
-            return partial(identityM)
+#     for s in t.trainSamples:
+#         inShapes = [shape for shape in s.inMatrix.shapes if shape.color in inColors]
+#         outShapes = [shape for shape in s.outMatrix.shapes if shape.color in colors]
+#         if len(inShapes) != len(outShapes) or len(inShapes) == 0:
+#             return partial(identityM)
             
-    reverse = [True, False]
-    order = [(0,1), (1,0)]    
-    bestScore = 1000
-    for r, o in product(reverse, order):        
-        model = trainLSTM(t, inColors=inColors, colors=colors, inRel=inRel,\
-                          outRel=outRel, reverse=r, order=o)
+#     reverse = [True, False]
+#     order = [(0,1), (1,0)]    
+#     bestScore = 1000
+#     for r, o in product(reverse, order):        
+#         model = trainLSTM(t, inColors=inColors, colors=colors, inRel=inRel,\
+#                           outRel=outRel, reverse=r, order=o)
         
-        score = 0
-        for s in t.trainSamples:
-            m = predictLSTM(s.inMatrix, model, inColors, colors, inRel, rel, r, o)
-            score += incorrectPixels(m, s.outMatrix.m)
-        if score < bestScore:
-            bestScore=score
-            ret = partial(predictLSTM, model=model, inColors=inColors,\
-                          colors=colors, inRel=inRel, rel=rel, reverse=r, order=o) 
-            if bestScore==0:
-                return ret
-    return ret
+#         score = 0
+#         for s in t.trainSamples:
+#             m = predictLSTM(s.inMatrix, model, inColors, colors, inRel, rel, r, o)
+#             score += incorrectPixels(m, s.outMatrix.m)
+#         if score < bestScore:
+#             bestScore=score
+#             ret = partial(predictLSTM, model=model, inColors=inColors,\
+#                           colors=colors, inRel=inRel, rel=rel, reverse=r, order=o) 
+#             if bestScore==0:
+#                 return ret
+#     return ret
 
 # %% Other utility functions
 
@@ -1840,6 +1895,7 @@ def symmetrizeSubmatrix(matrix, ud=False, lr=False, rotation=False, newColor=Non
     Given a Task.Matrix, make the non-background part symmetric
     """
     m = matrix.m.copy()
+    # print("m init", m)
     bC = matrix.backgroundColor
     if np.all(m == bC):
         return m
@@ -1869,18 +1925,23 @@ def symmetrizeSubmatrix(matrix, ud=False, lr=False, rotation=False, newColor=Non
         for newSym in symList:
             score, bestScore = 0, 0
             bestX, bestY = 0, 0
-            for i, j in np.ndindex((m.shape[0]-newSym.shape[0]+1,m.shape[1]-newSym.shape[1]+1)):
-                score = np.count_nonzero(np.logical_or(m[i:i+newSym.shape[0],j:j+newSym.shape[1]] == newSym, newSym == bC))
-                if score > bestScore:
-                    bestX, bestY = i, j
-                    bestScore = score
-            for i, j in np.ndindex(newSym.shape):
-                if newSym[i,j] != bC:
-                    if newColor == None:
-                        m[bestX+i, bestY+j] = newSym[i,j]
-                    else:
-                        if m[bestX+i,bestY+j] == bC:
-                           m[bestX+i, bestY+j] = newColor 
+            if (m.shape[0] >= newSym.shape[0]) and (m.shape[1] >= newSym.shape[1]):
+                for i, j in np.ndindex((m.shape[0]-newSym.shape[0]+1,m.shape[1]-newSym.shape[1]+1)):
+                    score = np.count_nonzero(np.logical_or(m[i:i+newSym.shape[0],j:j+newSym.shape[1]] == newSym, newSym == bC))
+                    if score > bestScore:
+                        bestX, bestY = i, j
+                        bestScore = score
+                for i, j in np.ndindex(newSym.shape):
+                    if newSym[i,j] != bC:
+                        if newColor == None:
+                            m[bestX+i, bestY+j] = newSym[i,j]
+                        else:
+                            if bestX+i >= m.shape[0] or bestY+j >= m.shape[1]:
+                                continue
+
+                            if m[bestX+i,bestY+j] == bC:
+                                m[bestX+i, bestY+j] = newColor
+
     else:
         found = False
         for x in range(subMat.shape[0]-subShape.shape[0]+1):
@@ -6744,6 +6805,7 @@ def getPossibleOperations(t, c):
     is a Task.Matrix and whose output is a numpy.ndarray (2-dim matrix).
     """ 
     candTask = c.t
+    # print("dir: ", dir(candTask))
     x = [] # List to be returned
     ###########################################################################
     # Fill the blanks
@@ -6817,7 +6879,8 @@ def getPossibleOperations(t, c):
                              fixedShapeFeatures=fsf))
                 
             if all(["getBestLSTM" not in str(op.func) for op in c.ops]):        
-                x.append(getBestLSTM(candTask))
+                # x.append(getBestLSTM(candTask))
+                pass
             
             # Other deterministic functions that change the color of shapes.
             for cc in candTask.commonColorChanges:
@@ -6856,9 +6919,8 @@ def getPossibleOperations(t, c):
         #######################################################################
         # CNNs
         
-        #x.append(getBestCNN(candTask))
-        if candTask.sameNSampleColors and all(["predictCNN" not in str(op.func) for op in c.ops]):
-            x.append(getBestSameNSampleColorsCNN(candTask))
+        # if candTask.sameNSampleColors and all(["predictCNN" not in str(op.func) for op in c.ops]):
+        #     x.append(getBestSameNSampleColorsCNN(candTask))
 
         """
         if t.backgroundColor != -1:

@@ -398,7 +398,7 @@ class BlocksWorldGFNTask(LightningModule):
             (generated_text, actions, states, reward, sample) = (
                 self.generate_trajectories(
                     initial_state=INIT,
-                    goal=f"{GOAL}",
+                    goal=GOAL,
                     max_steps=self.args.step,
                     eos_token_id=self.tokenizer.encode("\n", add_special_tokens=False)[
                         0
@@ -450,70 +450,39 @@ class BlocksWorldGFNTask(LightningModule):
         )
 
     def validation_step(self, problem, batch_idx):
-        print("Jalend:started validation")
+        print("Jalend: started validation")
         if self.args.use_lora:
-            base_to_lora(self.model)  # 确保转换成lora
-        self.model.eval()  # 必须用eval
+            base_to_lora(self.model)  # Ensure conversion to LoRA
+        self.model.eval()  # Must use eval mode
 
         INIT, GOAL, PLAN = problem
-        GOAL = GOAL[0]
-        INIT = INIT[0]
+        GOAL = GOAL[0]  # Ensure GOAL is properly formatted
+        INIT = INIT[0]  # Ensure INIT is properly formatted
 
         total_success = 0
         total_solution = 0
         success_text = []
 
         for _ in range(20):
-
             (generated_text, actions, states, reward, sample) = (
                 self.generate_trajectories(
                     initial_state=INIT,
-                    goal=f"{GOAL}",
+                    goal=GOAL,
                     max_steps=self.args.step,
-                    eos_token_id=self.tokenizer.encode("\n", add_special_tokens=False)[
-                        0
-                    ],
+                    eos_token_id=self.tokenizer.encode("\n", add_special_tokens=False)[0],
                     mode="test",
                 )
             )
-          # input and output grid states[-1] matches the target state
-            goal_statement = f"{GOAL}"
             print("validation_jalend", GOAL, states[-1])
             if(GOAL == states[-1]):
                 total_success += 1
                 total_solution += 1
-            # goals = re.findall(
-            #     "the [a-z]{0,10} block is on top of the [a-z]{0,10} block",
-            #     goal_statement,
-            # )  # TO CHANGE
-            # meetings = [g in states[-1] for g in goals]
 
-            # if sum(meetings) == len(meetings):
-            #     total_success += 1
-            #     actions_joined = "\n".join(actions)
-            #     if (GOAL, INIT, actions_joined) not in success_text:
-            #         total_solution += 1
-            #         success_text.append((GOAL, INIT, actions_joined))
-          # input and output grid states[-1] matches the target state
-        if total_success > 0:
-            success = 1
-        else:
-            success = 0
+        # Log success metrics
+        success = 1 if total_success > 0 else 0
+        self.log("val/success", success, sync_dist=True, prog_bar=True, batch_size=self.args.batch_size)
+        self.log("val/n_solution", total_solution, sync_dist=True, prog_bar=True, batch_size=self.args.batch_size)
 
-        self.log(
-            "val/success",
-            success,
-            sync_dist=True,
-            prog_bar=True,
-            batch_size=self.args.batch_size,
-        )
-        self.log(
-            "val/n_solutsion",
-            total_solution,
-            sync_dist=True,
-            prog_bar=True,
-            batch_size=self.args.batch_size,
-        )
 
     def on_train_batch_start(self, problem, batch_idx):
         pass
